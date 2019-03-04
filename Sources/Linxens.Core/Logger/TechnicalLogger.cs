@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 
 namespace Linxens.Core.Logger
 {
     public sealed class TechnicalLogger : ILogger
     {
+        private const string source = "FI Auto Data Entry";
+
         private static readonly Lazy<TechnicalLogger> lazy =
             new Lazy<TechnicalLogger>(() => new TechnicalLogger());
 
@@ -19,11 +22,12 @@ namespace Linxens.Core.Logger
                 if (string.IsNullOrWhiteSpace(this._logFilePath)) throw new ArgumentException();
 
                 Directory.CreateDirectory(this._logFilePath);
-                //mthis.LogInfo("","Directory created");
+                this.LogInfo("","Directory created");
             }
             catch (Exception)
             {
-                string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                // TODO: crate the log directory in %APPDATA%
+                string dirPath = "Logs";
                 Directory.CreateDirectory(dirPath);
                 this._logFilePath = dirPath;
                 // TODO vrai message
@@ -32,7 +36,7 @@ namespace Linxens.Core.Logger
         }
 
         private string _logFilePath { get; }
-        private string _logFileName => $"Linxens_{DateTime.Now.ToString("yyyy-MM-dd")}.log";
+        private string _logFileName => $"Linxens_{DateTime.Now:yyyy-MM-dd}.log";
 
         public static TechnicalLogger Instance => lazy.Value;
 
@@ -55,8 +59,21 @@ namespace Linxens.Core.Logger
         {
             string lineLog = DateTime.Now + "\t" + "|" + level + "\t" + "|" + action + "\t" + "|" + message;
 
+            using (EventLog eventLog = new EventLog("Application"))
+            {
+                try
+                {
+                    File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] { lineLog });
 
-            File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+                    eventLog.Source = source;
+                    eventLog.WriteEntry($"{action}: {message}", (EventLogEntryType) level, 1);
+                }
+                catch (Exception e)
+                {
+                    // TODO
+                }
+            }
+
         }
     }
 }

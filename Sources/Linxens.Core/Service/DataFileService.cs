@@ -18,7 +18,7 @@ namespace Linxens.Core.Service
         public DataFileService()
         {
             this._technicalLogger = TechnicalLogger.Instance;
-            this._qadLogger = QadLogger.Instance;
+            //this._qadLogger = QadLogger.Instance;
 
             //_technicalLogger.LogError("test");
 
