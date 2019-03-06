@@ -13,13 +13,13 @@ namespace Linxens.Core.Logger
         {
             AppSettingsReader appSettingsReader = new AppSettingsReader();
             this._logFilePath = appSettingsReader.GetValue("LogDirectory", typeof(string)) as string;
-
             try
             {
                 if (string.IsNullOrWhiteSpace(this._logFilePath)) throw new ArgumentException();
+                this.LogError("Directory creation", "Directory is created on the default path. You have select any value or whitespace");
 
                 Directory.CreateDirectory(this._logFilePath);
-                //mthis.LogInfo("","Directory created");
+                this.LogInfo("Directory creation","Directory creates successfully on the path"  + this._logFilePath );
             }
             catch (Exception)
             {
@@ -27,7 +27,7 @@ namespace Linxens.Core.Logger
                 Directory.CreateDirectory(dirPath);
                 this._logFilePath = dirPath;
                 // TODO vrai message
-                this.LogError("", "Log directory not specified");
+                this.LogError("Directory creation for all files and located on TODO directory", "Log directory not specified");
             }
         }
 

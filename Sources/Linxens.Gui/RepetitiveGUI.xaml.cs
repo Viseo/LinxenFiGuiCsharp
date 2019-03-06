@@ -2,6 +2,10 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using Linxens.Core.Service;
+using System.Linq;
+using System.Collections.ObjectModel;
+using Linxens.Core.Model;
+using System.Collections.Generic;
 
 namespace Linxens.Gui
 {
@@ -12,12 +16,14 @@ namespace Linxens.Gui
     {
         public RepetitiveGUI()
         {
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
             this.InitializeComponent();
 
 
             this.DataFileService = new DataFileService();
 
             this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
+           // remove.IsEnabled = false;
         }
 
         public DataFileService DataFileService { get; set; }
@@ -40,13 +46,14 @@ namespace Linxens.Gui
 
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            this.Statut.Background = System.Windows.Media.Brushes.Green;
+            Statut.Text = "READY";
+;
             DataGridRow sdr = (DataGridRow) sender;
             string file = sdr.DataContext.ToString();
 
-
             this.DataFileService.ReadFile(file);
 
-            // var result2 = service.ReadFileScrap(file);
             this.tb_site.Text = this.DataFileService.CurrentFile.Site;
             this.tb_emp.Text = this.DataFileService.CurrentFile.Emp;
             this.tb_trtype.Text = this.DataFileService.CurrentFile.TrType;
@@ -57,19 +64,70 @@ namespace Linxens.Gui
             this.tb_mhc.Text = this.DataFileService.CurrentFile.MCH;
             this.tb_lbl.Text = this.DataFileService.CurrentFile.LBL;
 
-            //tb_tape.Text = DataFileService.CurrentFile.Tape;
             this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
-
             this.tb_defect.Text = this.DataFileService.CurrentFile.Defect.ToString();
             this.tb_splice.Text = this.DataFileService.CurrentFile.Splices.ToString();
             this.tb_date.Text = this.DataFileService.CurrentFile.DateTapes;
             this.tb_printer.Text = this.DataFileService.CurrentFile.Printer;
             this.tb_numbofconfparts.Text = this.DataFileService.CurrentFile.NumbOfConfParts;
-
-
-            this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+          
             this.gr_scraps.Columns.RemoveAt(0);
-            //DataGridColumn column = gr_scraps.Columns[0];
+            this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+            
+        }
+        
+        private void RemoveScrap(object sender, RoutedEventArgs e)
+        {
+            int i = 0;
+            var test = DataFileService.CurrentFile.Scrap;
+            int SelectedItems = this.gr_scraps.SelectedItems.Count;
+
+            if (gr_result.SelectedItem == null)
+                MessageBox.Show("Select a file!");
+
+            else if (gr_scraps.SelectedItem == null)
+                MessageBox.Show("select a scrap to delete it!");
+
+            else
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
+                List<Quality> items = this.gr_scraps.SelectedItems.Cast<Quality>().ToList();
+                if (test != null)
+                {
+                    while (i < SelectedItems)
+                    {
+                        Quality itm = this.gr_scraps.SelectedItems[i] as Quality;
+                        if (itm != null)
+                        {
+                            if (messageBoxResult == MessageBoxResult.Yes)
+                                test.Remove(itm);
+                            i++;
+                        }
+                    }
+                    this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+                }
+            }    
+        }
+        
+        private void AddScrap(object sender, RoutedEventArgs e)
+        {
+            if (gr_result.SelectedItem == null)
+            {
+                MessageBox.Show("You can not add scrap to a non-existent file. Please select a file!");
+            }
+            else
+            {
+                var c = DataFileService.CurrentFile.Scrap;
+                c.Add(new Quality
+                {
+                    Qty = "",
+                    RsnCode = "",
+                    Tape = ""
+                });
+                DataFileService.CurrentFile.Scrap = c;
+                gr_scraps.CurrentItem = c;
+                this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+            }  
         }
     }
 }

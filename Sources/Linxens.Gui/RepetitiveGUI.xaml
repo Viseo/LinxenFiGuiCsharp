@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="RepetitiveGUI" Height="832" Width="828"
-        ResizeMode="CanMinimize">
+        ResizeMode="NoResize">
     <Grid Margin="0,0,2,0">
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="345,46,0,0"
-                VerticalAlignment="Top" Width="470" />
+                VerticalAlignment="Top" Width="470" >
+            <Button x:Name="remove" Content="Remove" HorizontalAlignment="Left" Height="20" Margin="290.2,433.2,0,0" VerticalAlignment="Top" Width="73" Click="RemoveScrap"/>
+        </Border>
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="5,46,0,0"
                 VerticalAlignment="Top" Width="335">
             <Button x:Name="Browse" Content="Browse" HorizontalAlignment="Left" Height="18" Margin="252,435,0,0"
@@ -91,7 +93,7 @@
                FontWeight="Bold" />
         <Label Content="Scrap List :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="355,329,0,0"
                FontWeight="Bold" />
-        <Button Content="+ Add" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="725,480,0,0" />
+        <Button Content="+ Add" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="725,480,0,0" Click="AddScrap"/>
         <Label Content="Current File" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,15,0,0"
                FontWeight="Bold" />
         <RichTextBox HorizontalAlignment="Left" Height="241" VerticalAlignment="Top" Width="403" Margin="5,555,0,0">
@@ -112,9 +114,9 @@
         </RichTextBox>
         <Label Content="Data Log :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="413,525,0,0"
                FontWeight="Bold" />
-        <TextBox HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="READY" VerticalAlignment="Top"
+        <TextBox x:Name="Statut" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="..." VerticalAlignment="Top"
                  Width="63" Margin="345,528,0,0" RenderTransformOrigin="0.307,0.174" IsEnabled="False"
-                 Background="Green" />
+                  />
         <Label Content="Status :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="289,524,0,0"
                FontWeight="Bold" />
         <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" />

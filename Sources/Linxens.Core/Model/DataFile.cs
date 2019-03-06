@@ -29,6 +29,7 @@ namespace Linxens.Core.Model
 
     public class Quality
     {
+        //public int IdScrap { get; set; }
         public string Tape { get; set; }
         public string Qty { get; set; }
         public string RsnCode { get; set; }

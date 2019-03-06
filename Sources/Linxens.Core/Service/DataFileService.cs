@@ -62,9 +62,23 @@ namespace Linxens.Core.Service
             this.ReadLastSection(fileRawData, currentLine);
         }
 
-        public void WriteFile(string path)
+        public string WriteFile(string path)
         {
-            throw new NotImplementedException();
+            string[] lines = File.ReadAllLines(path);
+            using (StreamWriter file =
+                new StreamWriter(path))
+            {
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("Tape#"))
+                    {
+                        file.WriteLine(line);
+                    }
+                }
+
+                return path;
+            }
+            //throw new NotImplementedException();
         }
 
         private void LoadFileToProcess()
@@ -75,7 +89,7 @@ namespace Linxens.Core.Service
             if (realFiles.Any())
                 foreach (string realFile in realFiles)
                 {
-                    string fileName = Path.GetFileName(realFile).Replace(".txt", $"_{DateTime.Now:yyyyMMdd-HH-mm-ss-fff}.txt");
+                    string fileName = Path.GetFileName(realFile).Replace(".txt", $"_{DateTime.Now:yyyy-MM-dd  HH-mm-ss-fff}.txt");
                     if (fileName != null)
                     {
                         string destPath = Path.Combine(todoDir, fileName);
