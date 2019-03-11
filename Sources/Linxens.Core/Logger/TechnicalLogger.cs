@@ -35,10 +35,10 @@ namespace Linxens.Core.Logger
             }
         }
 
-        private string _logFilePath { get; }
-        private string _logFileName => $"Linxens_{DateTime.Now:yyyy-MM-dd}.log";
+        private string _logFilePath { get; set;}
+        private string _logFileName {get {return "Linxens_test.log";}}
 
-        public static TechnicalLogger Instance => lazy.Value;
+        public static TechnicalLogger Instance { get { return lazy.Value; } }
 
         public void LogInfo(string action, string message)
         {
@@ -66,7 +66,7 @@ namespace Linxens.Core.Logger
                     File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] { lineLog });
 
                     eventLog.Source = source;
-                    eventLog.WriteEntry($"{action}: {message}", (EventLogEntryType) level, 1);
+                    //eventLog.WriteEntry($"{action}: {message}", (EventLogEntryType) level, 1);
                 }
                 catch (Exception e)
                 {

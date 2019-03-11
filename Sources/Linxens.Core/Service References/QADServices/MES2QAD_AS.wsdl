@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:MES2QAD_AS" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:S2="urn:MES2QAD_AS:MES2QAD_AS" xmlns:S1="urn:soap-fault:details" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001" xmlns="http://schemas.xmlsoap.org/wsdl/" name="MES2QAD_AS" targetNamespace="urn:MES2QAD_AS" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation>EncodingType=DOC_LITERAL, WSA_Product=10.2B05 - N/A</wsdl:documentation>
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="urn:soap-fault:details">
+      <xsd:element name="FaultDetail">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="errorMessage" type="xsd:string" />
+            <xsd:element name="requestID" type="xsd:string" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="urn:MES2QAD_AS:MES2QAD_AS">
+      <xsd:complexType name="xxm2q01_tt_golf_dataRow">
+        <xsd:sequence>
+          <xsd:element name="ip_srno" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_emp" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_tr_type" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_line" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_part" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_op" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_wc" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_mch" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_lbl" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_qty" nillable="true" type="xsd:decimal" />
+          <xsd:element name="ip_rsn" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxm2q01_tt_golf_dataParam">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="tt_golf_dataRow" type="S2:xxm2q01_tt_golf_dataRow" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxm2q01_tt_Error_WarningRow">
+        <xsd:sequence>
+          <xsd:element name="tterr_type" nillable="true" type="xsd:string" />
+          <xsd:element name="tterr_srno" nillable="true" type="xsd:int" />
+          <xsd:element name="tterr_code" nillable="true" type="xsd:string" />
+          <xsd:element name="tterr_desc" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxm2q01_tt_Error_WarningParam">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="tt_Error_WarningRow" type="S2:xxm2q01_tt_Error_WarningRow" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxf2q01_tt_golf_dataRow">
+        <xsd:sequence>
+          <xsd:element name="ip_srno" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_emp" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_tr_type" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_line" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_part" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_op" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_wc" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_mch" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_lbl" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_t_lbl" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_qty" nillable="true" type="xsd:decimal" />
+          <xsd:element name="ip_rsn" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_defects" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_splices" nillable="true" type="xsd:int" />
+          <xsd:element name="ip_p_date" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_printer" nillable="true" type="xsd:string" />
+          <xsd:element name="ip_shipto" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxf2q01_tt_golf_dataParam">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="tt_golf_dataRow" type="S2:xxf2q01_tt_golf_dataRow" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxf2q01_tt_Error_WarningRow">
+        <xsd:sequence>
+          <xsd:element name="tterr_type" nillable="true" type="xsd:string" />
+          <xsd:element name="tterr_srno" nillable="true" type="xsd:int" />
+          <xsd:element name="tterr_code" nillable="true" type="xsd:string" />
+          <xsd:element name="tterr_desc" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="xxf2q01_tt_Error_WarningParam">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="tt_Error_WarningRow" type="S2:xxf2q01_tt_Error_WarningRow" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="xxm2q01">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ip_AuthKey" nillable="true" type="xsd:string" />
+            <xsd:element name="ip_User" nillable="true" type="xsd:string" />
+            <xsd:element name="ip_domain" nillable="true" type="xsd:string" />
+            <xsd:element name="tt_golf_data" nillable="true" type="S2:xxm2q01_tt_golf_dataParam" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="xxm2q01Response">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="result" nillable="true" type="xsd:string" />
+            <xsd:element name="op_ReturnStatus" nillable="true" type="xsd:string" />
+            <xsd:element name="tt_Error_Warning" nillable="true" type="S2:xxm2q01_tt_Error_WarningParam" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="xxf2q01">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ip_AuthKey" nillable="true" type="xsd:string" />
+            <xsd:element name="ip_User" nillable="true" type="xsd:string" />
+            <xsd:element name="ip_domain" nillable="true" type="xsd:string" />
+            <xsd:element name="tt_golf_data" nillable="true" type="S2:xxf2q01_tt_golf_dataParam" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="xxf2q01Response">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="result" nillable="true" type="xsd:string" />
+            <xsd:element name="op_ReturnStatus" nillable="true" type="xsd:string" />
+            <xsd:element name="tt_Error_Warning" nillable="true" type="S2:xxf2q01_tt_Error_WarningParam" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="MES2QAD_AS_xxf2q01">
+    <wsdl:part name="parameters" element="S2:xxf2q01" />
+  </wsdl:message>
+  <wsdl:message name="MES2QAD_AS_xxm2q01Response">
+    <wsdl:part name="parameters" element="S2:xxm2q01Response" />
+  </wsdl:message>
+  <wsdl:message name="FaultDetailMessage">
+    <wsdl:part name="FaultDetail" element="S1:FaultDetail" />
+  </wsdl:message>
+  <wsdl:message name="MES2QAD_AS_xxf2q01Response">
+    <wsdl:part name="parameters" element="S2:xxf2q01Response" />
+  </wsdl:message>
+  <wsdl:message name="MES2QAD_AS_xxm2q01">
+    <wsdl:part name="parameters" element="S2:xxm2q01" />
+  </wsdl:message>
+  <wsdl:portType name="MES2QAD_ASObj">
+    <wsdl:operation name="xxm2q01">
+      <wsdl:input message="tns:MES2QAD_AS_xxm2q01" />
+      <wsdl:output message="tns:MES2QAD_AS_xxm2q01Response" />
+      <wsdl:fault name="MES2QAD_ASFault" message="tns:FaultDetailMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="xxf2q01">
+      <wsdl:input message="tns:MES2QAD_AS_xxf2q01" />
+      <wsdl:output message="tns:MES2QAD_AS_xxf2q01Response" />
+      <wsdl:fault name="MES2QAD_ASFault" message="tns:FaultDetailMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MES2QAD_ASObj" type="tns:MES2QAD_ASObj">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="xxm2q01">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="MES2QAD_ASFault">
+        <soap:fault use="literal" name="MES2QAD_ASFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="xxf2q01">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="MES2QAD_ASFault">
+        <soap:fault use="literal" name="MES2QAD_ASFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MES2QAD_ASService">
+    <wsdl:port name="MES2QAD_ASObj" binding="tns:MES2QAD_ASObj">
+      <wsdl:documentation>
+      </wsdl:documentation>
+      <soap:address location="http://test-qad01.mic.ad:8111/wsa/wsa1" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

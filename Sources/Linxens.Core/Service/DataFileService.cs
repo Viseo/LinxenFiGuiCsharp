@@ -51,7 +51,7 @@ namespace Linxens.Core.Service
 
         public void ReadFile(string path)
         {
-            if (!File.Exists(path)) throw new InvalidOperationException($"Path [{path}] not found");
+            if (!File.Exists(path)) throw new InvalidOperationException("Path [{path}] not found");
 
 
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
@@ -75,7 +75,7 @@ namespace Linxens.Core.Service
             if (realFiles.Any())
                 foreach (string realFile in realFiles)
                 {
-                    string fileName = Path.GetFileName(realFile).Replace(".txt", $"_{DateTime.Now:yyyyMMdd-HH-mm-ss-fff}.txt");
+                    string fileName = Path.GetFileName(realFile).Replace(".txt", "_{DateTime.Now:yyyyMMdd-HH-mm-ss-fff}.txt");
                     if (fileName != null)
                     {
                         string destPath = Path.Combine(todoDir, fileName);

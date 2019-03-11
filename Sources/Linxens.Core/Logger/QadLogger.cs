@@ -30,12 +30,12 @@ namespace Linxens.Core.Logger
             }
         }
 
-        private string _logFilePath { get; }
-        private string _logFileName => $"LinxensQAD_{DateTime.Now.ToString("yyyy-MM-dd")}.log";
+        private string _logFilePath { get; set;}
+        private string _logFileName {get {return "test.log";}}
 
-        private string LogFilePath { get; }
+        private string LogFilePath { get; set;}
 
-        public static QadLogger Instance => lazy.Value;
+        public static QadLogger Instance { get { return lazy.Value; } }
 
         public void LogInfo(string action, string message)
         {
