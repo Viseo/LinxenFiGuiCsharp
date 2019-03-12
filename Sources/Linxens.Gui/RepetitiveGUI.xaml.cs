@@ -71,5 +71,11 @@ namespace Linxens.Gui
             this.gr_scraps.Columns.RemoveAt(0);
             //DataGridColumn column = gr_scraps.Columns[0];
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            QadService qadService = new QadService("p#66word999", "zhouhm", "4327");
+            qadService.Send(DataFileService.CurrentFile);
+        }
     }
 }

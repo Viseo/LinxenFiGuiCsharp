@@ -23,10 +23,10 @@ namespace Linxens.Core.Logger
             }
             catch (Exception)
             {
-                string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LogsQAD");
+                string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Qad.log");
                 Directory.CreateDirectory(dirPath);
                 this._logFilePath = dirPath;
-                this.LogError("", "Log directory not specified");
+                this.LogError("QAD Logger start...", "Log directory not specified");
             }
         }
 
@@ -55,7 +55,8 @@ namespace Linxens.Core.Logger
         private void Log(LoggerEnum.LogLevel level, string action, string message)
         {
             string lineLog = DateTime.Now + "\t" + "|" + level + "\t" + "|" + action + "\t" + "|" + message;
-            File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+            //File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+            File.AppendAllLines("C:\\temp\\Qad.log", new[] {lineLog});
         }
     }
 }
