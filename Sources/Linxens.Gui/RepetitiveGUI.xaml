@@ -118,7 +118,7 @@
                   />
         <Label Content="Status :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="289,524,0,0"
                FontWeight="Bold" />
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" />
+        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="ButtonBase_OnClick"/>
 
     </Grid>
 </Window>

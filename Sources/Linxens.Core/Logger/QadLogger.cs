@@ -1,41 +1,93 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using Linxens.Core.Helper;
 
 namespace Linxens.Core.Logger
 {
     public sealed class QadLogger : ILogger
     {
+        private const string source = "FI Auto Data Entry";
+
         private static readonly Lazy<QadLogger> lazy =
             new Lazy<QadLogger>(() => new QadLogger());
 
         private QadLogger()
         {
             AppSettingsReader appSettingsReader = new AppSettingsReader();
-            this.LogFilePath = appSettingsReader.GetValue("LogDirectory", typeof(string)) as string;
+            this._logFilePath = appSettingsReader.GetValue("LogDirectory", typeof(string)) as string;
 
-            try
+            // Configuration is empty
+            if (string.IsNullOrWhiteSpace(this._logFilePath))
             {
-                if (string.IsNullOrWhiteSpace(this._logFilePath)) throw new ArgumentException();
+                this.CreateDefaultLogDir();
 
-                Directory.CreateDirectory(this._logFilePath);
-                this.LogInfo("", "This directory exist");
+                this.LogWarning("Log Init", "No log directory given in the configuration file");
+                this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                return;
             }
-            catch (Exception)
+
+            bool dirLogExist = Directory.Exists(this._logFilePath);
+
+            if (dirLogExist)
             {
-                string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LogsQAD");
-                Directory.CreateDirectory(dirPath);
-                this._logFilePath = dirPath;
-                this.LogError("", "Log directory not specified");
+                bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+                if (writeAccess)
+                {
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
+                else
+                {
+                    this.CreateDefaultLogDir();
+
+                    this.LogWarning("Log Init", "Log directory in configuration file has no write access");
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
+            }
+            else
+            {
+                try
+                {
+                    Directory.CreateDirectory(this._logFilePath);
+                    bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+
+                    if (writeAccess)
+                    {
+                        this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                    }
+                    else
+                    {
+                        this.CreateDefaultLogDir();
+
+                        this.LogWarning("Log Init", "Log directory in configuration file has no write access");
+                        this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                    }
+                }
+                catch (Exception)
+                {
+                    string givenDir = this._logFilePath;
+                    this.CreateDefaultLogDir();
+                    this.LogWarning("Log Init", "An error has throw on creating log directory given in configuration file : " + givenDir);
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
             }
         }
 
-        private string _logFilePath { get; }
-        private string _logFileName => $"LinxensQAD_{DateTime.Now.ToString("yyyy-MM-dd")}.log";
+        private string _logFilePath { get; set; }
 
-        private string LogFilePath { get; }
+        private string _logFileName
+        {
+            get
+            {
+                string date = DateTime.Now.ToString("yyyy-MM-dd");
+                return "QADLog_" + date + ".log";
+            }
+        }
 
-        public static QadLogger Instance => lazy.Value;
+        public static QadLogger Instance
+        {
+            get { return lazy.Value; }
+        }
 
         public void LogInfo(string action, string message)
         {
@@ -52,10 +104,25 @@ namespace Linxens.Core.Logger
             this.Log(LoggerEnum.LogLevel.ERROR, action, message);
         }
 
+        private void CreateDefaultLogDir()
+        {
+            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
+            if (!Directory.Exists(appDataFolder)) Directory.CreateDirectory(appDataFolder);
+
+            this._logFilePath = appDataFolder;
+        }
+
         private void Log(LoggerEnum.LogLevel level, string action, string message)
         {
-            string lineLog = DateTime.Now + "\t" + "|" + level + "\t" + "|" + action + "\t" + "|" + message;
-            File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+            try
+            {
+                string lineLog = DateTime.Now + "|" + level + "|" + action + "|" + message;
+                File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] { lineLog });
+            }
+            catch (Exception)
+            {
+                Console.Error.Write("");
+            }
         }
     }
 }

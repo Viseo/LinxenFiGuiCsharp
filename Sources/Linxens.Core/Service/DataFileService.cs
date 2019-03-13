@@ -21,8 +21,6 @@ namespace Linxens.Core.Service
             this._technicalLogger = TechnicalLogger.Instance;
             this._qadLogger = QadLogger.Instance;
 
-            //_technicalLogger.LogError("test");
-
             this._config = new AppSettingsReader();
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
             this.FilesToProcess = new List<string>();
@@ -53,7 +51,7 @@ namespace Linxens.Core.Service
         public void ReadFile(string path)
         {
             if (!File.Exists(path)) //throw new InvalidOperationException($"Path [{path}] not found");
-            _technicalLogger.LogWarning("Read File", $"Failed to read file. The file on path [{path}] is not exist");
+            _technicalLogger.LogWarning("Read File", string.Format("Failed to read file. The file on path [{0}] is not exist", path));
 
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
 
@@ -61,7 +59,7 @@ namespace Linxens.Core.Service
             int currentLine = this.ReadFirstSection(fileRawData);
             currentLine = this.ReadScrapSection(fileRawData, currentLine);
             this.ReadLastSection(fileRawData, currentLine);
-            _technicalLogger.LogInfo("Read File", $"The file [{path}] is read successfully");
+            _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", path));
         }
         // A revoir si cela fonctionne bien
         public string WriteFile(string path)
@@ -91,15 +89,15 @@ namespace Linxens.Core.Service
             if (realFiles.Any())
                 foreach (string realFile in realFiles)
                 {
-                    string fileName = Path.GetFileName(realFile).Replace(".txt", $"_{DateTime.Now:yyyy-MM-dd  HH-mm-ss-fff}.txt");
-                    _technicalLogger.LogInfo("Creation file to process", $"The file [{fileName}] is created successfully");
+                    string fileName = Path.GetFileName(realFile).Replace(".txt", string.Format("_{0:yyyy-MM-dd  HH-mm-ss-fff}.txt", DateTime.Now));
+                    _technicalLogger.LogInfo("Creation file to process", string.Format("The file [{0}] is created successfully", fileName));
                     if (fileName != null)
                     {
                         string destPath = Path.Combine(todoDir, fileName);
                         File.Copy(realFile, destPath, true);
-                        _technicalLogger.LogInfo("Copy file on TODO directory", $"The file [{fileName}] is copied on the TODO directory successfully");
+                        _technicalLogger.LogInfo("Copy file on TODO directory", string.Format("The file [{0}] is copied on the TODO directory successfully", fileName));
                         File.Delete(realFile);
-                        _technicalLogger.LogInfo("Delete File on the working directory", $"The file [{fileName}] is deleted successfully on the working directory");
+                        _technicalLogger.LogInfo("Delete File on the working directory", string.Format("The file [{0}] is deleted successfully on the working directory", fileName));
                     }
                 }
 

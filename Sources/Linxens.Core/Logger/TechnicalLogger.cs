@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using Linxens.Core.Helper;
 
 namespace Linxens.Core.Logger
 {
     public sealed class TechnicalLogger : ILogger
     {
+        private const string source = "FI Auto Data Entry";
+
         private static readonly Lazy<TechnicalLogger> lazy =
             new Lazy<TechnicalLogger>(() => new TechnicalLogger());
 
@@ -13,29 +16,78 @@ namespace Linxens.Core.Logger
         {
             AppSettingsReader appSettingsReader = new AppSettingsReader();
             this._logFilePath = appSettingsReader.GetValue("LogDirectory", typeof(string)) as string;
-            try
+
+            // Configuration is empty
+            if (string.IsNullOrWhiteSpace(this._logFilePath))
             {
-                if (string.IsNullOrWhiteSpace(this._logFilePath))
-                {
-                    LogError("Directory creation", "Failed to create log file directory. You have select any value or whitespace");
-                    throw new ArgumentException();
-                }
-                Directory.CreateDirectory(this._logFilePath);
-                this.LogInfo("Directory creation","Log file directory creates successfully on the path" +"\t" + this._logFilePath );
+                this.CreateDefaultLogDir();
+
+                this.LogWarning("Log Init", "No log directory given in the configuration file");
+                this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                return;
             }
-            catch (Exception)
+
+            bool dirLogExist = Directory.Exists(this._logFilePath);
+
+            if (dirLogExist)
             {
-                string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
-                Directory.CreateDirectory(dirPath);
-                this._logFilePath = dirPath;
-                this.LogError("Create log file directory", $"Log directory not specified. It's created on the default path directory  [{dirPath}]");
+                bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+                if (writeAccess)
+                {
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
+                else
+                {
+                    this.CreateDefaultLogDir();
+
+                    this.LogWarning("Log Init", "Log directory in configuration file has no write access");
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
+            }
+            else
+            {
+                try
+                {
+                    Directory.CreateDirectory(this._logFilePath);
+                    bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+
+                    if (writeAccess)
+                    {
+                        this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                    }
+                    else
+                    {
+                        this.CreateDefaultLogDir();
+
+                        this.LogWarning("Log Init", "Log directory in configuration file has no write access");
+                        this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                    }
+                }
+                catch (Exception)
+                {
+                    string givenDir = this._logFilePath;
+                    this.CreateDefaultLogDir();
+                    this.LogWarning("Log Init", "An error has throw on creating log directory given in configuration file : " + givenDir);
+                    this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
+                }
             }
         }
 
-        private string _logFilePath { get; }
-        private string _logFileName => $"Linxens_{DateTime.Now.ToString("yyyy-MM-dd")}.log";
+        private string _logFilePath { get; set; }
 
-        public static TechnicalLogger Instance => lazy.Value;
+        private string _logFileName
+        {
+            get
+            {
+                string date = DateTime.Now.ToString("yyyy-MM-dd");
+                return "TechnicalLog_" + date + ".log";
+            }
+        }
+
+        public static TechnicalLogger Instance
+        {
+            get { return lazy.Value; }
+        }
 
         public void LogInfo(string action, string message)
         {
@@ -52,10 +104,25 @@ namespace Linxens.Core.Logger
             this.Log(LoggerEnum.LogLevel.ERROR, action, message);
         }
 
+        private void CreateDefaultLogDir()
+        {
+            string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
+            if (!Directory.Exists(appDataFolder)) Directory.CreateDirectory(appDataFolder);
+
+            this._logFilePath = appDataFolder;
+        }
+
         private void Log(LoggerEnum.LogLevel level, string action, string message)
         {
-            string lineLog = DateTime.Now + "\t" + "|" + level + "\t" + "|" + action + "\t" + "|" + message;
-            File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+            try
+            {
+                string lineLog = DateTime.Now + "|" + level + "|" + action + "|" + message;
+                File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
+            }
+            catch (Exception)
+            {
+                Console.Error.Write("");
+            }
         }
     }
 }

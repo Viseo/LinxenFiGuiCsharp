@@ -66,6 +66,12 @@ namespace Linxens.Gui
 
 
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            QadService qadService = new QadService("p#66word999", "zhouhm", "4327");
+            qadService.Send(DataFileService.CurrentFile);
+        }
         
         private void RemoveScrap(object sender, RoutedEventArgs e)
         {
@@ -88,12 +94,13 @@ namespace Linxens.Gui
                 {
                     while (i < ItemsSelected)
                     {
-                        if (this.gr_scraps.SelectedItems[i] is Quality itm)
+                        Quality itm = this.gr_scraps.SelectedItems[i] as Quality;
+                        if (itm != null)
                         {
                             if (messageBoxResult == MessageBoxResult.Yes)
                                 test.Remove(itm);
                             i++;
-                            DataFileService._technicalLogger.LogInfo("Delete Scrap", $"Line Scrap number {i} is deleted successfully");
+                            DataFileService._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
                         }
                     }
                     tb_qty.Text = DataFileService.CurrentFile.Qty;
