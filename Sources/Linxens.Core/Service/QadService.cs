@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting;
+using System.ServiceModel;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
 using Linxens.Core.QADServices;
@@ -39,7 +41,7 @@ namespace Linxens.Core.Service
             this._qadLogger.LogInfo("Send data file to QAD service", "QAD service start...");
             try
             {
-                using (MES2QAD_ASObjClient qadClient = new MES2QAD_ASObjClient("MES2QAD_ASObj"))
+                using (MES2QAD_ASObjClient qadClient = new MES2QAD_ASObjClient("MES2QAD_ASObj", "http://test-qad01.mic.ad:8111/wsa/wsa1"))
                 {
                     string tape = dataFile.Scrap.First().Tape;
 
@@ -63,7 +65,7 @@ namespace Linxens.Core.Service
                         currentScrap.ip_mch = dataFile.MCH;
                         currentScrap.ip_lbl = dataFile.LBL;
                         currentScrap.ip_t_lbl = tape;
-                        currentScrap.ip_qty = decimal.Parse(quality.Qty);
+                        currentScrap.ip_qty = decimal.Parse(quality.Qty, CultureInfo.InvariantCulture);
                         currentScrap.ip_rsn = quality.RsnCode;
                         currentScrap.ip_defects = 0;
                         currentScrap.ip_splices = 0;
@@ -92,7 +94,7 @@ namespace Linxens.Core.Service
                     prodData.ip_mch = dataFile.MCH;
                     prodData.ip_lbl = dataFile.LBL;
                     prodData.ip_t_lbl = tape;
-                    prodData.ip_qty = decimal.Parse(dataFile.Qty);
+                    prodData.ip_qty = decimal.Parse(dataFile.Qty, CultureInfo.InvariantCulture);
                     prodData.ip_rsn = "";
                     prodData.ip_defects = dataFile.Defect;
                     prodData.ip_splices = dataFile.Splices;
