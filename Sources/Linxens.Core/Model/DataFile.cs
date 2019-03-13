@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Linxens.Core.Service;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace Linxens.Core.Model
 {
@@ -18,20 +21,46 @@ namespace Linxens.Core.Model
         public List<Quality> Scrap { get; set; }
 
 
-        //public string Tape { get; set; }
-        public string Qty { get; set; }
+        public string InitialQty { get; set; }
+
+        private string _qty;
+        public string Qty
+        {
+            get
+            {
+                float totalScrap = 0f;
+                foreach (Quality quality in this.Scrap)
+                {
+                    bool isValid = true;
+                    float current;
+                    isValid = float.TryParse(quality.Qty, NumberStyles.Float, CultureInfo.InvariantCulture, out current);
+
+                    if (isValid)
+                        totalScrap += current;
+                }
+
+                //foreach (Quality quality in this.Scrap) totalScrap += float.Parse(quality.Qty, CultureInfo.InvariantCulture);
+                float initialFloat = float.Parse(this.InitialQty, CultureInfo.InvariantCulture);
+                return (initialFloat + totalScrap).ToString(CultureInfo.InvariantCulture);
+            }
+            set { this._qty = value; }
+        }
+
         public int? Defect { get; set; }
         public int? Splices { get; set; }
         public string DateTapes { get; set; }
         public string Printer { get; set; }
         public string NumbOfConfParts { get; set; }
     }
-
+    
     public class Quality
     {
         //public int IdScrap { get; set; }
         public string Tape { get; set; }
         public string Qty { get; set; }
         public string RsnCode { get; set; }
+
+        
     }
+   
 }

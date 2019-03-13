@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Linxens.Core.Logger;
@@ -11,9 +12,9 @@ namespace Linxens.Core.Service
     public class DataFileService
     {
         private readonly AppSettingsReader _config;
-        private readonly ILogger _qadLogger;
+        public readonly ILogger _qadLogger;
 
-        private readonly ILogger _technicalLogger;
+        public readonly ILogger _technicalLogger;
 
         public DataFileService()
         {
@@ -51,8 +52,8 @@ namespace Linxens.Core.Service
 
         public void ReadFile(string path)
         {
-            if (!File.Exists(path)) throw new InvalidOperationException($"Path [{path}] not found");
-
+            if (!File.Exists(path)) //throw new InvalidOperationException($"Path [{path}] not found");
+            _technicalLogger.LogWarning("Read File", $"Failed to read file. The file on path [{path}] is not exist");
 
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
 
@@ -60,8 +61,9 @@ namespace Linxens.Core.Service
             int currentLine = this.ReadFirstSection(fileRawData);
             currentLine = this.ReadScrapSection(fileRawData, currentLine);
             this.ReadLastSection(fileRawData, currentLine);
+            _technicalLogger.LogInfo("Read File", $"The file [{path}] is read successfully");
         }
-
+        // A revoir si cela fonctionne bien
         public string WriteFile(string path)
         {
             string[] lines = File.ReadAllLines(path);
@@ -90,11 +92,14 @@ namespace Linxens.Core.Service
                 foreach (string realFile in realFiles)
                 {
                     string fileName = Path.GetFileName(realFile).Replace(".txt", $"_{DateTime.Now:yyyy-MM-dd  HH-mm-ss-fff}.txt");
+                    _technicalLogger.LogInfo("Creation file to process", $"The file [{fileName}] is created successfully");
                     if (fileName != null)
                     {
                         string destPath = Path.Combine(todoDir, fileName);
                         File.Copy(realFile, destPath, true);
+                        _technicalLogger.LogInfo("Copy file on TODO directory", $"The file [{fileName}] is copied on the TODO directory successfully");
                         File.Delete(realFile);
+                        _technicalLogger.LogInfo("Delete File on the working directory", $"The file [{fileName}] is deleted successfully on the working directory");
                     }
                 }
 
@@ -105,7 +110,9 @@ namespace Linxens.Core.Service
         private void InitConfig()
         {
             this.RootDirPath = this._config.GetValue("RootDirectory", typeof(string)) as string;
+            _technicalLogger.LogInfo("Init root directory", "The root directory is initialized successfully");
             this.RootWorkingPath = this._config.GetValue("RootWorkingDirectory", typeof(string)) as string;
+            _technicalLogger.LogInfo("Init root working directory", "The root working directory is initialized successfully");
         }
 
         /// <summary>
@@ -200,6 +207,7 @@ namespace Linxens.Core.Service
         /// <returns></returns>
         private int ReadLastSection(string[] txtFile, int startIndex)
         {
+            string qty ="";
             int i;
             for (i = startIndex + 1; i < txtFile.Length; i++)
             {
@@ -210,6 +218,7 @@ namespace Linxens.Core.Service
                 {
                     case "Qty":
                         this.CurrentFile.Qty = items[1];
+                        qty = items[1];
                         break;
                     case "Defect":
                         this.CurrentFile.Defect = Convert.ToInt32(items[1]);
@@ -229,9 +238,43 @@ namespace Linxens.Core.Service
                 }
             }
 
+            float totalScrap = 0f;
+            foreach (Quality quality in this.CurrentFile.Scrap)
+            {
+                bool isValid = true;
+                float current;
+                isValid = float.TryParse(quality.Qty, NumberStyles.Float, CultureInfo.InvariantCulture, out current);
+
+                if (isValid)
+                    totalScrap += current;
+                
+
+                //totalScrap += float.Parse(quality.Qty, CultureInfo.InvariantCulture);
+            }
+            float currentQty = float.Parse(qty, CultureInfo.InvariantCulture);
+            float initialQty = currentQty - totalScrap;
+            CurrentFile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
             return i;
         }
+        //public static string NullToString(object Value)
+        //{
+        //    return Value == null ? "" : Value.ToString();
 
+        //}
+        //public static Nullable<T> ToNullable<T>(this string s) where T : struct
+        //{
+        //    Nullable<T> result = new Nullable<T>();
+        //    try
+        //    {
+        //        if (!string.IsNullOrEmpty(s) && s.Trim().Length > 0)
+        //        {
+        //            System.ComponentModel.TypeConverter conv = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+        //            result = (T)conv.ConvertFrom(s);
+        //        }
+        //    }
+        //    catch { }
+        //    return result;
+        //}
         /// <summary>
         ///     Check if directory structure exist
         /// </summary>
@@ -249,13 +292,17 @@ namespace Linxens.Core.Service
             bool errorsExist = Directory.Exists(errorsDir);
 
             if (!todoExist) Directory.CreateDirectory(todoDir);
-
+            _technicalLogger.LogInfo("Creation directory", "TODO directory is created successfully");
             if (!runningExist) Directory.CreateDirectory(runningDir);
-
+            _technicalLogger.LogInfo("Creation directory", "RUNNING directory is created successfully");
             if (!doneExist) Directory.CreateDirectory(doneDir);
-
+            _technicalLogger.LogInfo("Creation directory", "DONE directory is created successfully");
             if (!errorsExist) Directory.CreateDirectory(errorsDir);
+            _technicalLogger.LogInfo("Creation directory", "ERRORS directory is created successfully");
         }
+
+       //private string UpdateDataQlty(string txtbox, int resultat, )
+
 
         private enum WorkingType
         {

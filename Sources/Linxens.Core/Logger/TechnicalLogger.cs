@@ -15,19 +15,20 @@ namespace Linxens.Core.Logger
             this._logFilePath = appSettingsReader.GetValue("LogDirectory", typeof(string)) as string;
             try
             {
-                if (string.IsNullOrWhiteSpace(this._logFilePath)) throw new ArgumentException();
-                this.LogError("Directory creation", "Directory is created on the default path. You have select any value or whitespace");
-
+                if (string.IsNullOrWhiteSpace(this._logFilePath))
+                {
+                    LogError("Directory creation", "Failed to create log file directory. You have select any value or whitespace");
+                    throw new ArgumentException();
+                }
                 Directory.CreateDirectory(this._logFilePath);
-                this.LogInfo("Directory creation","Directory creates successfully on the path"  + this._logFilePath );
+                this.LogInfo("Directory creation","Log file directory creates successfully on the path" +"\t" + this._logFilePath );
             }
             catch (Exception)
             {
                 string dirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dirPath);
                 this._logFilePath = dirPath;
-                // TODO vrai message
-                this.LogError("Directory creation for all files and located on TODO directory", "Log directory not specified");
+                this.LogError("Create log file directory", $"Log directory not specified. It's created on the default path directory  [{dirPath}]");
             }
         }
 
@@ -54,8 +55,6 @@ namespace Linxens.Core.Logger
         private void Log(LoggerEnum.LogLevel level, string action, string message)
         {
             string lineLog = DateTime.Now + "\t" + "|" + level + "\t" + "|" + action + "\t" + "|" + message;
-
-
             File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] {lineLog});
         }
     }

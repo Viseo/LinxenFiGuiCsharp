@@ -14,7 +14,7 @@
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="5,46,0,0"
                 VerticalAlignment="Top" Width="335">
             <Button x:Name="Browse" Content="Browse" HorizontalAlignment="Left" Height="18" Margin="252,435,0,0"
-                    VerticalAlignment="Top" Width="72" Click="AddFolder_Click" RenderTransformOrigin="1.639,0.722" />
+                    VerticalAlignment="Top" Width="72" RenderTransformOrigin="1.639,0.722" />
         </Border>
 
         <TextBox x:Name="tb_site" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
@@ -50,15 +50,12 @@
                  VerticalAlignment="Top" Width="120" Margin="680,220,0,0" />
         <TextBox x:Name="tb_printer" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,192,0,0" />
-        <TextBox x:Name="tb_date" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="680,164,0,0" />
         <TextBox x:Name="tb_splice" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,136,0,0" />
         <TextBox x:Name="tb_defect" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,108,0,0" />
         <Label Content="Conform Parts" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,217,0,0" />
         <Label Content="Printer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,189,0,0" />
-        <Label Content="Dates" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,161,0,0" />
         <Label Content="Splice" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,133,0,0"
                RenderTransformOrigin="0.038,0.462" />
         <Label Content="Defect" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,105,0,0" />
@@ -78,13 +75,15 @@
         <Label Content="File List" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,15,0,0"
                FontWeight="Bold" RenderTransformOrigin="-0.673,0.577" />
         <DataGrid x:Name="gr_scraps" HorizontalAlignment="Left" Height="115" VerticalAlignment="Top" Width="445"
-                  Margin="355,360,0,0" Background="Transparent" AutoGenerateColumns="True">
-            <DataGrid.Columns>
+                  Margin="355,360,0,0" Background="Transparent" AutoGenerateColumns="True" ItemsSource="{Binding DataFileService.CurrentFile.Scrap, BindsDirectlyToSource=True, Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" CanUserAddRows="False" LostFocus="Gr_scraps_LostFocus">
+            <!--<DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding}"
                                     Foreground="Black" Width="300" IsReadOnly="False" />
-            </DataGrid.Columns>
+            </DataGrid.Columns>-->
             <DataGrid.ItemContainerStyle>
-                <Style TargetType="DataGridRow" />
+                <Style TargetType="DataGridRow" >
+                    
+                </Style>
             </DataGrid.ItemContainerStyle>
         </DataGrid>
         <Label Content="Info 1 ?" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,46,0,0"
