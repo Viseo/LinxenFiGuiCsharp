@@ -115,12 +115,12 @@ namespace Linxens.Core.Service
         {
        
             File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "runningFileDone.txt")); 
-            File.Delete(Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), "runningFileDone.txt"));
+            File.Delete(Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), "runningFile.txt"));
         }
 
         public void ErrorFile()
         {
-            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "RunningReel.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "runningFileError.txt"));
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "runningFileError.txt"));
         }
         private void LoadFileToProcess()
         {
