@@ -138,7 +138,6 @@ namespace Linxens.Core.Service
 
                 ret = false;
             }
-            Thread.Sleep(1500);
             return ret;
         }
     }

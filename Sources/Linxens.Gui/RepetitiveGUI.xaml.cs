@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -114,9 +115,11 @@ namespace Linxens.Gui
 
                 Thread sendThread = new Thread(() =>
                 {
+                    DataFileService.WriteFile();
                     bool res = qadService.Send(this.DataFileService.CurrentFile);
                     this.ChangeUiState(true); // Call UI Thread
                     this.onSendFinished(true);
+
                 });
 
                 sendThread.Start();
@@ -131,6 +134,7 @@ namespace Linxens.Gui
                 {
                     this.Statut.Background = Brushes.Green;
                     this.Statut.Text = "DONE";
+                    DataFileService.successFile();
                     MessageBox.Show("Sending data file Success ! ", "", MessageBoxButton.OK);
                     Application.Current.Shutdown();
                 }
@@ -138,13 +142,14 @@ namespace Linxens.Gui
                 {
                     this.Statut.Background = Brushes.Red;
                     this.Statut.Text = "ERROR";
+                    DataFileService.ErrorFile();
                     MessageBoxResult response = MessageBox.Show("Sending data file FAILED ! Do you wan to retry sending data ?", "", MessageBoxButton.YesNo);
 
                     if (response == MessageBoxResult.Yes) this.SendData();
                 }
             }));
         }
-
+    
         private void ChangeUiState(bool state)
         {
             this.Dispatcher.Invoke(new Action(() =>

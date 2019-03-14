@@ -77,26 +77,51 @@ namespace Linxens.Core.Service
             this.ReadLastSection(fileRawData, currentLine);
             _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", path));
         }
-        // A revoir si cela fonctionne bien
-        public string WriteFile(string path)
-        {
-            string[] lines = File.ReadAllLines(path);
-            using (StreamWriter file =
-                new StreamWriter(path))
-            {
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith("Tape#"))
-                    {
-                        file.WriteLine(line);
-                    }
-                }
 
-                return path;
+        public void WriteFile()
+        {
+            List<string> tab = new List<string>();
+
+            tab.Add("Repetitive:");
+            tab.Add("Site:" + CurrentFile.Site);
+            tab.Add("Emp:" + CurrentFile.Emp);
+            tab.Add("Tr-Type:" + CurrentFile.TrType);
+            tab.Add("Line:" + CurrentFile.Line);
+            tab.Add("PN:" + CurrentFile.PN);
+            tab.Add("OP:" + CurrentFile.OP);
+            tab.Add("WC:" + CurrentFile.WC);
+            tab.Add("MCH:" + CurrentFile.MCH);
+            tab.Add("Lbl:" + CurrentFile.LBL);
+            tab.Add("");
+            tab.Add("Tape#:" + CurrentFile.TapeN);
+            foreach (var quality in CurrentFile.Scrap)
+            {
+                tab.Add("Qty:" + quality.Qty + "" + "Rsn Code:" + quality.RsnCode);
             }
-            //throw new NotImplementedException();
+            tab.Add("");
+            tab.Add("WR-PROD:");
+            tab.Add("Tape#:" + CurrentFile.TapeN);
+            tab.Add("Qty:" + CurrentFile.Qty);
+            tab.Add("Defect:" + CurrentFile.Defect);
+            tab.Add("Splices:" + CurrentFile.Splices);
+            tab.Add("Dates:" + CurrentFile.DateTapes);
+            tab.Add("Printers:" + CurrentFile.Printer);
+            tab.Add("Number of conform parts:" + CurrentFile.NumbOfConfParts);
+
+            File.AppendAllLines(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), tab);
         }
 
+        public void successFile()
+        {
+       
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "runningFileDone.txt")); 
+            File.Delete(WorkingType.TODO.ToString());
+        }
+
+        public void ErrorFile()
+        {
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "runningFileError.txt"));
+        }
         private void LoadFileToProcess()
         {
             string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());
@@ -274,25 +299,7 @@ namespace Linxens.Core.Service
             CurrentFile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
             return i;
         }
-        //public static string NullToString(object Value)
-        //{
-        //    return Value == null ? "" : Value.ToString();
-
-        //}
-        //public static Nullable<T> ToNullable<T>(this string s) where T : struct
-        //{
-        //    Nullable<T> result = new Nullable<T>();
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(s) && s.Trim().Length > 0)
-        //        {
-        //            System.ComponentModel.TypeConverter conv = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
-        //            result = (T)conv.ConvertFrom(s);
-        //        }
-        //    }
-        //    catch { }
-        //    return result;
-        //}
+       
         /// <summary>
         ///     Check if directory structure exist
         /// </summary>
