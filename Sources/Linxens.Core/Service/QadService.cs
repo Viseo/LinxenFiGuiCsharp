@@ -18,9 +18,10 @@ namespace Linxens.Core.Service
         private readonly string ipDomain;
         private readonly string ipUser;
 
-        private readonly List<xxf2q01_tt_golf_dataRow> QadDataRows;
+        private List<xxf2q01_tt_golf_dataRow> QadDataRows;
         private xxf2q01_tt_Error_WarningRow[] QadErrorRows;
-        private readonly xxf2q01Request QadRequest;
+        private xxf2q01Request QadRequest;
+        private xxf2q01Response QadResponse;
 
         public QadService(string ipAuthKey, string ipUser, string ipDomain)
         {
@@ -41,8 +42,8 @@ namespace Linxens.Core.Service
             this._qadLogger.LogInfo("Send data file to QAD service", "QAD service start...");
             try
             {
-                using (MES2QAD_ASObjClient qadClient = new MES2QAD_ASObjClient("MES2QAD_ASObj", "http://test-qad01.mic.ad:8111/wsa/wsa1"))
-                {
+                MES2QAD_ASObj clientAsObj = new MES2QAD_ASObjClient("MES2QAD_ASObj");
+
                     string tape = dataFile.Scrap.First().Tape;
 
                     this.QadErrorRows = new xxf2q01_tt_Error_WarningRow[dataFile.Scrap.Count + 1];
@@ -101,6 +102,7 @@ namespace Linxens.Core.Service
                     prodData.ip_p_date = dataFile.DateTapes;
                     prodData.ip_printer = dataFile.Printer;
                     prodData.ip_shipto = "Dummy";
+                    this.QadDataRows.Add(prodData);
 
                     timer.Stop();
                     this._qadLogger.LogInfo("Prepare data for send", "Loading WR-BF-PROD DONE => Elapsed time : " + timer.Elapsed.Seconds + "sec");
@@ -109,11 +111,19 @@ namespace Linxens.Core.Service
 
                     this._qadLogger.LogInfo("Send", "Sending data file start...");
 
-                    timer.Start();
-                    qadClient.xxf2q01(this.QadRequest.ip_AuthKey, this.QadRequest.ip_User, this.QadRequest.ip_domain, this.QadDataRows.ToArray(), out returnStatus, out this.QadErrorRows);
-                    timer.Stop();
-                    if (returnStatus != "ok") throw new ServerException();
-                }
+                    try
+                    {
+                        this.QadRequest.tt_golf_data = this.QadDataRows.ToArray();
+                        timer.Start();
+                        this.QadResponse = clientAsObj.xxf2q01(this.QadRequest);
+                        timer.Stop();
+                        if (returnStatus != "ok") throw new ServerException();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
             }
             catch (Exception e)
             {
@@ -125,13 +135,22 @@ namespace Linxens.Core.Service
                 }
                 else
                 {
+                    
                     this._qadLogger.LogError("Send data file to QAD service", e.Message);
-                    foreach (xxf2q01_tt_Error_WarningRow xxf2Q01TtErrorWarningRow in this.QadErrorRows)
-                        this._qadLogger.LogError("Send data file to QAD service", "" +
-                                                                                  "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                                                  "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
-                                                                                  "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                                                  "[Desc: " + xxf2Q01TtErrorWarningRow.tterr_desc + "]");
+                    if(this.QadResponse != null)
+                    {
+                        foreach (xxf2q01_tt_Error_WarningRow xxf2Q01TtErrorWarningRow in this.QadResponse.tt_Error_Warning)
+                        {
+                            if (xxf2Q01TtErrorWarningRow != null)
+                            {
+                                this._qadLogger.LogError("Send data file to QAD service", "" +
+                                                                                          "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
+                                                                                          "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
+                                                                                          "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
+                                                                                          "[Desc: " + xxf2Q01TtErrorWarningRow.tterr_desc + "]");
+                            }
+                        }
+                    }
 
                     this._qadLogger.LogError("Send data file to QAD service", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                 }
