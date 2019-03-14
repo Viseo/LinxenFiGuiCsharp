@@ -47,15 +47,15 @@
         <TextBox x:Name="tb_qty" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,80,0,0" IsEnabled="False" />
         <TextBox x:Name="tb_numbofconfparts" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"
-                 VerticalAlignment="Top" Width="120" Margin="680,220,0,0" />
+                 VerticalAlignment="Top" Width="120" Margin="680,192,0,0" />
         <TextBox x:Name="tb_printer" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="680,192,0,0" />
+                 Width="120" Margin="680,164,0,0" />
         <TextBox x:Name="tb_splice" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,136,0,0" />
         <TextBox x:Name="tb_defect" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,108,0,0" />
-        <Label Content="Conform Parts" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,217,0,0" />
-        <Label Content="Printer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,189,0,0" />
+        <Label Content="Conform Parts" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,189,0,0" />
+        <Label Content="Printer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,161,0,0" />
         <Label Content="Splice" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,133,0,0"
                RenderTransformOrigin="0.038,0.462" />
         <Label Content="Defect" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,105,0,0" />
@@ -107,6 +107,9 @@
         <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="ButtonBase_OnClick"/>
         <ListBox Name="techLogs" HorizontalAlignment="Left" Height="237" VerticalAlignment="Top" Width="397" Margin="413,556,0,0"/>
         <ListBox Name="qadLogs" HorizontalAlignment="Left" Height="238" VerticalAlignment="Top" Width="398" Margin="10,555,0,0"/>
+        <TextBox x:Name="tb_tapeN" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"
+            VerticalAlignment="Top" Width="120" Margin="680,220,0,0" />
+        <Label Content="Tape#" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,217,0,0" />
 
     </Grid>
 </Window>

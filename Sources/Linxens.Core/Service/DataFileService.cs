@@ -188,7 +188,6 @@ namespace Linxens.Core.Service
                     case "Qty":
                         this.CurrentFile.Scrap.Add(new Quality
                         {
-                            Tape = tape,
                             Qty = items[1].Split(' ')[0],
                             RsnCode = items[2]
                         });
@@ -234,6 +233,9 @@ namespace Linxens.Core.Service
                         break;
                     case "Number of conform parts":
                         this.CurrentFile.NumbOfConfParts = items[1];
+                        break;
+                    case "Tape#":
+                        this.CurrentFile.TapeN = items[1];
                         break;
                 }
             }

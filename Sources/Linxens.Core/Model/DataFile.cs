@@ -51,16 +51,13 @@ namespace Linxens.Core.Model
         public string DateTapes { get; set; }
         public string Printer { get; set; }
         public string NumbOfConfParts { get; set; }
+
+        public string TapeN { get; set; }
     }
     
     public class Quality
     {
-        //public int IdScrap { get; set; }
-        public string Tape { get; set; }
         public string Qty { get; set; }
-        public string RsnCode { get; set; }
-
-        
+        public string RsnCode { get; set; }   
     }
-   
 }

@@ -65,6 +65,7 @@ namespace Linxens.Gui
             this.tb_splice.Text = this.DataFileService.CurrentFile.Splices.ToString();
             this.tb_printer.Text = this.DataFileService.CurrentFile.Printer;
             this.tb_numbofconfparts.Text = this.DataFileService.CurrentFile.NumbOfConfParts;
+            this.tb_tapeN.Text = this.DataFileService.CurrentFile.TapeN;
 
             this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
             this.gr_scraps.UpdateLayout();
@@ -78,6 +79,8 @@ namespace Linxens.Gui
             string Password = config.GetValue("Password", typeof(string)) as string;
 
             QadService qadService = new QadService(Password, User, Domain);
+
+
             qadService.Send(this.DataFileService.CurrentFile);
         }
 
@@ -132,8 +135,7 @@ namespace Linxens.Gui
                 c.Add(new Quality
                 {
                     Qty = "",
-                    RsnCode = "",
-                    Tape = this.DataFileService.CurrentFile.Scrap[i - 1].Tape
+                    RsnCode = ""
                 });
                 i++;
                 this.DataFileService.CurrentFile.Scrap = c;
