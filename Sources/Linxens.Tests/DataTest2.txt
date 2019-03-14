@@ -9,11 +9,11 @@ WC:MCOND
 MCH:FI13
 Lbl:S0175908
 
-Tape#:S0156097-1
+Tape#:S0175908-1
 Qty:-0.02 Rsn Code:626
 
 WR-PROD
-Tape#:S0156097-1
+Tape#:S0175908-1
 Qty:267.9
 Defect:1
 Splices:2
