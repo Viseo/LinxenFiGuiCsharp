@@ -117,6 +117,7 @@ namespace Linxens.Core.Service
                         timer.Start();
                         this.QadResponse = clientAsObj.xxf2q01(this.QadRequest);
                         timer.Stop();
+                        returnStatus = this.QadResponse.op_ReturnStatus;
                         if (returnStatus != "ok") throw new ServerException();
                     }
                     catch (Exception e)
@@ -143,7 +144,7 @@ namespace Linxens.Core.Service
                         {
                             if (xxf2Q01TtErrorWarningRow != null)
                             {
-                                this._qadLogger.LogError("Send data file to QAD service", "" +
+                                this._qadLogger.LogError("Send data file to QAD service", "\n" +
                                                                                           "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
                                                                                           "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
                                                                                           "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +

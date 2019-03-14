@@ -73,9 +73,9 @@ namespace Linxens.Gui
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             AppSettingsReader config = new AppSettingsReader();
-            string User = config.GetValue("LogDirectory", typeof(string)) as string;
-            string Domain = config.GetValue("LogDirectory", typeof(string)) as string;
-            string Password = config.GetValue("LogDirectory", typeof(string)) as string;
+            string User = config.GetValue("User", typeof(string)) as string;
+            string Domain = config.GetValue("Domain", typeof(string)) as string;
+            string Password = config.GetValue("Password", typeof(string)) as string;
 
             QadService qadService = new QadService(Password, User, Domain);
             qadService.Send(this.DataFileService.CurrentFile);
