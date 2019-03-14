@@ -24,9 +24,25 @@ namespace Linxens.Core.Service
             this._config = new AppSettingsReader();
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
             this.FilesToProcess = new List<string>();
-            this.InitConfig();
-            this.CheckDirectoryStructure(this.RootWorkingPath);
-            this.LoadFileToProcess();
+
+            try
+            {
+                this.InitConfig();
+            }
+            catch (Exception)
+            {
+                this._technicalLogger.LogError("Init Configuration", "Error on directory init please check your configuration file");
+            }
+
+            try
+            {
+                this.CheckDirectoryStructure(this.RootWorkingPath);
+                this.LoadFileToProcess();
+            }
+            catch (Exception)
+            {
+                this._technicalLogger.LogError("Init Configuration", "Error on working directory structure init please check your configuration file");
+            }
         }
 
         // Data for app.config

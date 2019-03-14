@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Remoting;
+using System.Threading;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
 using Linxens.Core.QADServices;
@@ -26,6 +27,7 @@ namespace Linxens.Core.Service
 
         public bool Send(DataFile dataFile)
         {
+            bool ret = false;
             string returnStatus = "";
             Stopwatch timer = new Stopwatch();
             this._qadLogger.LogInfo("Send data file to QAD service", "QAD service start...");
@@ -103,6 +105,7 @@ namespace Linxens.Core.Service
                     if (returnStatus != "ok") throw new ServerException();
                     this._qadLogger.LogInfo("Send", "SUCESS");
                     this._qadLogger.LogInfo("Send", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
+                    ret = true;
                 }
                 catch (Exception e)
                 {
@@ -133,10 +136,10 @@ namespace Linxens.Core.Service
                     this._qadLogger.LogError("Send data file to QAD service", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                 }
 
-                return false;
+                ret = false;
             }
-
-            return true;
+            Thread.Sleep(1500);
+            return ret;
         }
     }
 }

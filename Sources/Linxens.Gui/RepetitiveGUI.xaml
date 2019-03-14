@@ -4,18 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="RepetitiveGUI" Height="832" Width="828"
+        Title="FI Auto Data Entry" Height="832" Width="828"
         ResizeMode="NoResize">
     <Grid Margin="0,0,2,0">
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="345,46,0,0"
                 VerticalAlignment="Top" Width="470" >
-            <Button x:Name="remove" Content="Remove" HorizontalAlignment="Left" Height="20" Margin="290.2,433.2,0,0" VerticalAlignment="Top" Width="73" Click="RemoveScrap"/>
+            <Button x:Name="btRemove" Content="Remove" HorizontalAlignment="Left" Height="20" Margin="290.2,433.2,0,0" VerticalAlignment="Top" Width="73" Click="RemoveScrap"/>
         </Border>
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="5,46,0,0"
-                VerticalAlignment="Top" Width="335">
-            <Button x:Name="Browse" Content="Browse" HorizontalAlignment="Left" Height="18" Margin="252,435,0,0"
-                    VerticalAlignment="Top" Width="72" RenderTransformOrigin="1.639,0.722" />
-        </Border>
+                VerticalAlignment="Top" Width="335"/>
 
         <TextBox x:Name="tb_site" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="435,80,0,0" />
@@ -60,7 +57,7 @@
                RenderTransformOrigin="0.038,0.462" />
         <Label Content="Defect" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,105,0,0" />
         <Label Content="Qty" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,77,0,0" />
-        <DataGrid x:Name="gr_result" HorizontalAlignment="Left" Height="421" VerticalAlignment="Top" Width="316"
+        <DataGrid x:Name="gr_result" HorizontalAlignment="Left" Height="446" VerticalAlignment="Top" Width="316"
                   Margin="15,54,0,0" Background="Transparent" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding}"
@@ -86,13 +83,13 @@
                 </Style>
             </DataGrid.ItemContainerStyle>
         </DataGrid>
-        <Label Content="Info 1 ?" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,46,0,0"
+        <Label Content="WR-SCRAP" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,46,0,0"
                FontWeight="Bold" />
         <Label Content="WR PROD :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,46,0,0"
                FontWeight="Bold" />
         <Label Content="Scrap List :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="355,329,0,0"
                FontWeight="Bold" />
-        <Button Content="+ Add" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="725,480,0,0" Click="AddScrap"/>
+        <Button Name="btAdd" Content="+ Add" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="725,480,0,0" Click="AddScrap"/>
         <Label Content="Current File" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,15,0,0"
                FontWeight="Bold" />
         <Label Content="QAD Response :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,524,0,0"
@@ -100,11 +97,11 @@
         <Label Content="Data Log :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="413,525,0,0"
                FontWeight="Bold" />
         <TextBox x:Name="Statut" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="..." VerticalAlignment="Top"
-                 Width="63" Margin="345,528,0,0" RenderTransformOrigin="0.307,0.174" IsEnabled="False"
+                 Width="63" Margin="345,528,0,0" RenderTransformOrigin="0.307,0.174" FontWeight="Bold" CharacterCasing="Upper" IsReadOnly="True"
                   />
         <Label Content="Status :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="289,524,0,0"
                FontWeight="Bold" />
-        <Button Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="ButtonBase_OnClick"/>
+        <Button Name="btSend" Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="ButtonBase_OnClick"/>
         <ListBox Name="techLogs" HorizontalAlignment="Left" Height="237" VerticalAlignment="Top" Width="397" Margin="413,556,0,0"/>
         <ListBox Name="qadLogs" HorizontalAlignment="Left" Height="238" VerticalAlignment="Top" Width="398" Margin="10,555,0,0"/>
         <TextBox x:Name="tb_tapeN" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"

@@ -1,12 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
 using Linxens.Core.Service;
@@ -14,37 +17,47 @@ using Linxens.Core.Service;
 namespace Linxens.Gui
 {
     /// <summary>
-    ///     Logique d'interaction pour Page1.xaml
+    ///     MainWindow
     /// </summary>
     public partial class RepetitiveGUI : Window
     {
         private readonly ILogger _technicalLogger;
+        private readonly ILogger _qadLogger;
+
+        public DataFileService DataFileService { get; set; }
 
         public RepetitiveGUI()
         {
             TechnicalLogger.logUi = this.AppendTechnicalLogs;
             QadLogger.logUi = this.AppendQadLogs;
+
             this._technicalLogger = TechnicalLogger.Instance;
+            this._qadLogger = QadLogger.Instance;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             this.InitializeComponent();
 
             this._technicalLogger.LogInfo("APPLICATION START", "");
+            this._qadLogger.LogInfo("APPLICATION START", "");
 
+            this.ChangeUiState(false);
             this.DataFileService = new DataFileService();
             this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
-            if (this.gr_result.Items.Count > 0) this.SelectDatagridRow(0);
+
+            if (this.gr_result.Items.Count > 0)
+            {
+                ChangeUiState(true);
+                this.SelectDatagridRow(0);
+            }
         }
-
-        public DataFileService DataFileService { get; set; }
-
 
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            this.ChangeUiState(true);
+
             this.Statut.Background = Brushes.Green;
             this.Statut.Text = "READY";
-            this.DataFileService._technicalLogger.LogInfo("Status", "The status is going to ready. File selected is ready for submission");
-            ;
+            this.DataFileService._technicalLogger.LogInfo("Status", "File selected READY for transmission");
             DataGridRow sdr = (DataGridRow) sender;
             string file = sdr.DataContext.ToString();
 
@@ -73,15 +86,92 @@ namespace Linxens.Gui
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            AppSettingsReader config = new AppSettingsReader();
-            string User = config.GetValue("User", typeof(string)) as string;
-            string Domain = config.GetValue("Domain", typeof(string)) as string;
-            string Password = config.GetValue("Password", typeof(string)) as string;
+            this.SendData();
+        }
 
-            QadService qadService = new QadService(Password, User, Domain);
+        public static void Invoke(Action action)
+        {
+            Dispatcher dispatchObject = Application.Current.Dispatcher;
+            if (dispatchObject == null || dispatchObject.CheckAccess())
+                action();
+            else
+                dispatchObject.Invoke(action);
+        }
 
+        private void SendData()
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                this.ChangeUiState(false);
+                this.Statut.Background = Brushes.Yellow;
+                this.Statut.Text = "SENDING";
 
-            qadService.Send(this.DataFileService.CurrentFile);
+                AppSettingsReader config = new AppSettingsReader();
+                string User = config.GetValue("User", typeof(string)) as string;
+                string Domain = config.GetValue("Domain", typeof(string)) as string;
+                string Password = config.GetValue("Password", typeof(string)) as string;
+                QadService qadService = new QadService(Password, User, Domain);
+
+                Thread sendThread = new Thread(() =>
+                {
+                    bool res = qadService.Send(this.DataFileService.CurrentFile);
+                    this.ChangeUiState(true); // Call UI Thread
+                    this.onSendFinished(true);
+                });
+
+                sendThread.Start();
+            }));
+        }
+
+        private void onSendFinished(bool state)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (state)
+                {
+                    this.Statut.Background = Brushes.Green;
+                    this.Statut.Text = "DONE";
+                    MessageBox.Show("Sending data file Success ! ", "", MessageBoxButton.OK);
+                    Application.Current.Shutdown();
+                }
+                else
+                {
+                    this.Statut.Background = Brushes.Red;
+                    this.Statut.Text = "ERROR";
+                    MessageBoxResult response = MessageBox.Show("Sending data file FAILED ! Do you wan to retry sending data ?", "", MessageBoxButton.YesNo);
+
+                    if (response == MessageBoxResult.Yes) this.SendData();
+                }
+            }));
+        }
+
+        private void ChangeUiState(bool state)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                this.tb_site.IsEnabled = state;
+                this.tb_emp.IsEnabled = state;
+                this.tb_trtype.IsEnabled = state;
+                this.tb_line.IsEnabled = state;
+                this.tb_pn.IsEnabled = state;
+                this.tb_op.IsEnabled = state;
+                this.tb_wc.IsEnabled = state;
+                this.tb_mhc.IsEnabled = state;
+                this.tb_lbl.IsEnabled = state;
+
+                this.tb_defect.IsEnabled = state;
+                this.tb_splice.IsEnabled = state;
+                this.tb_printer.IsEnabled = state;
+                this.tb_numbofconfparts.IsEnabled = state;
+                this.tb_tapeN.IsEnabled = state;
+
+                this.gr_result.IsEnabled = state;
+                this.gr_scraps.IsEnabled = state;
+
+                this.btRemove.IsEnabled = state;
+                this.btAdd.IsEnabled = state;
+                this.btSend.IsEnabled = state;
+            }));
         }
 
         private void RemoveScrap(object sender, RoutedEventArgs e)
@@ -176,18 +266,24 @@ namespace Linxens.Gui
             }
         }
 
-        public void AppendTechnicalLogs(string message)
+        private void AppendTechnicalLogs(string message)
         {
-            this.techLogs.Items.Add(message);
-            this.techLogs.SelectedIndex = this.techLogs.Items.Count - 1;
-            this.techLogs.ScrollIntoView(this.techLogs.SelectedItem);
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                this.techLogs.Items.Add(message);
+                this.techLogs.SelectedIndex = this.techLogs.Items.Count - 1;
+                this.techLogs.ScrollIntoView(this.techLogs.SelectedItem);
+            }));
         }
 
-        public void AppendQadLogs(string message)
+        private void AppendQadLogs(string message)
         {
-            this.qadLogs.Items.Add(message);
-            this.qadLogs.SelectedIndex = this.qadLogs.Items.Count - 1;
-            this.qadLogs.ScrollIntoView(this.qadLogs.SelectedItem);
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                this.qadLogs.Items.Add(message);
+                this.qadLogs.SelectedIndex = this.qadLogs.Items.Count - 1;
+                this.qadLogs.ScrollIntoView(this.qadLogs.SelectedItem);
+            }));
         }
 
         private void SelectDatagridRow(int index)
