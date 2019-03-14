@@ -10,7 +10,6 @@ MCH:FI13
 Lbl:S0156097
 
 Tape#:S0156097-1
-Qty:-0.02 Rsn Code:626
 
 WR-PROD
 Tape#:S0156097-1

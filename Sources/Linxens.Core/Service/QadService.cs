@@ -44,7 +44,7 @@ namespace Linxens.Core.Service
             {
                 MES2QAD_ASObj clientAsObj = new MES2QAD_ASObjClient("MES2QAD_ASObj");
 
-                    string tape = dataFile.Scrap.First().Tape;
+                string tape = dataFile.LBL;
 
                     this.QadErrorRows = new xxf2q01_tt_Error_WarningRow[dataFile.Scrap.Count + 1];
 
@@ -65,14 +65,11 @@ namespace Linxens.Core.Service
                         currentScrap.ip_wc = dataFile.WC;
                         currentScrap.ip_mch = dataFile.MCH;
                         currentScrap.ip_lbl = dataFile.LBL;
-                        currentScrap.ip_t_lbl = tape;
+                        currentScrap.ip_t_lbl = tape + "-1";
                         currentScrap.ip_qty = decimal.Parse(quality.Qty, CultureInfo.InvariantCulture);
                         currentScrap.ip_rsn = quality.RsnCode;
                         currentScrap.ip_defects = 0;
                         currentScrap.ip_splices = 0;
-                        currentScrap.ip_p_date = null;
-                        currentScrap.ip_printer = null;
-                        currentScrap.ip_shipto = null;
 
                         this.QadDataRows.Add(currentScrap);
                         scrapNbr++;
@@ -94,7 +91,7 @@ namespace Linxens.Core.Service
                     prodData.ip_wc = dataFile.WC;
                     prodData.ip_mch = dataFile.MCH;
                     prodData.ip_lbl = dataFile.LBL;
-                    prodData.ip_t_lbl = tape;
+                    prodData.ip_t_lbl = tape + "-1";
                     prodData.ip_qty = decimal.Parse(dataFile.Qty, CultureInfo.InvariantCulture);
                     prodData.ip_rsn = "";
                     prodData.ip_defects = dataFile.Defect;
@@ -119,6 +116,8 @@ namespace Linxens.Core.Service
                         timer.Stop();
                         returnStatus = this.QadResponse.op_ReturnStatus;
                         if (returnStatus != "ok") throw new ServerException();
+                        this._qadLogger.LogInfo("Send", "SUCESS");
+                        this._qadLogger.LogInfo("Send", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                     }
                     catch (Exception e)
                     {

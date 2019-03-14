@@ -10,12 +10,11 @@ MCH:FI13
 Lbl:S0183382
 
 Tape#:S0183382-1
-Qty:-0.02 Rsn Code:626
 
 WR-PROD
 Tape#:S0183382-1
 Qty:244.86
-Defect:1
+Defect:0
 Splices:2
 Dates:-
 Printer:CNWFI01
