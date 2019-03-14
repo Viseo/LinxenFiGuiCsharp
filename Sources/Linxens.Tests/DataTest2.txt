@@ -1,0 +1,22 @@
+Repetitive:
+Site:4327
+Emp:E100622
+Tr-Type:WR-SCRAP
+Line:L9
+PN:90345101F
+OP:850
+WC:MCOND
+MCH:FI13
+Lbl:S0175908
+
+Tape#:S0156097-1
+Qty:-0.02 Rsn Code:626
+
+WR-PROD
+Tape#:S0156097-1
+Qty:267.9
+Defect:1
+Splices:2
+Dates:-
+Printer:CNWFI01
+Number of conform parts:54460

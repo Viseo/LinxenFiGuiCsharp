@@ -101,8 +101,10 @@ namespace Linxens.Core.Service
                     }
                 }
 
-            string[] todoFiles = Directory.GetFiles(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString()));
-            foreach (string todoFile in todoFiles) this.FilesToProcess.Add(todoFile);
+            this.FilesToProcess = new DirectoryInfo(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString())).GetFiles()
+                        .OrderByDescending(f => f.LastWriteTime)
+                        .Select(f => f.FullName)
+                        .ToArray();
         }
 
         private void InitConfig()

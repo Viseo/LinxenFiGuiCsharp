@@ -1,10 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
 namespace Linxens.Core.Helper
 {
-    public static class DirectoryHelper
+    public static class Helper
     {
         public static bool HasWritePermissionOnDir(string path)
         {
@@ -26,6 +27,22 @@ namespace Linxens.Core.Helper
             }
 
             return writeAllow && !writeDeny;
+        }
+
+        public static string ToString(this Enum val, int nbrChar)
+        {
+            string returnValue = "";
+            string strVal = val.ToString();
+
+            if (strVal.Length < nbrChar)
+            {
+                returnValue = strVal;
+                for (int i = strVal.Length; i < nbrChar; i++) returnValue += " ";
+
+                return returnValue;
+            }
+
+            return strVal.Substring(0, nbrChar);
         }
     }
 }

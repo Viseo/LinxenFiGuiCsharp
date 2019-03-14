@@ -7,6 +7,8 @@ namespace Linxens.Core.Logger
 {
     public sealed class QadLogger : ILogger
     {
+        public static Action<string> logUi;
+
         private const string source = "FI Auto Data Entry";
 
         private static readonly Lazy<QadLogger> lazy =
@@ -31,7 +33,7 @@ namespace Linxens.Core.Logger
 
             if (dirLogExist)
             {
-                bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+                bool writeAccess = Helper.Helper.HasWritePermissionOnDir(this._logFilePath);
                 if (writeAccess)
                 {
                     this.LogInfo("Log Init", "Log directory was created on " + this._logFilePath);
@@ -49,7 +51,7 @@ namespace Linxens.Core.Logger
                 try
                 {
                     Directory.CreateDirectory(this._logFilePath);
-                    bool writeAccess = DirectoryHelper.HasWritePermissionOnDir(this._logFilePath);
+                    bool writeAccess = Helper.Helper.HasWritePermissionOnDir(this._logFilePath);
 
                     if (writeAccess)
                     {
@@ -96,7 +98,7 @@ namespace Linxens.Core.Logger
 
         public void LogWarning(string action, string message)
         {
-            this.Log(LoggerEnum.LogLevel.WARNING, action, message);
+            this.Log(LoggerEnum.LogLevel.WARN, action, message);
         }
 
         public void LogError(string action, string message)
@@ -116,8 +118,9 @@ namespace Linxens.Core.Logger
         {
             try
             {
-                string lineLog = DateTime.Now + "|" + level + "|" + action + "|" + message;
+                string lineLog = DateTime.Now.ToString("s") + "|" + level.ToString(5) + "|" + action + " >> " + message;
                 File.AppendAllLines(Path.Combine(this._logFilePath, this._logFileName), new[] { lineLog });
+                logUi(lineLog);
             }
             catch (Exception)
             {

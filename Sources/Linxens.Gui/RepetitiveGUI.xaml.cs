@@ -1,14 +1,15 @@
-﻿using System.Windows;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Linxens.Core.Service;
-using System.Linq;
-using System.Collections.ObjectModel;
+using System.Windows.Media;
+using Linxens.Core.Logger;
 using Linxens.Core.Model;
-using System.Collections.Generic;
-using System;
-using System.Windows.Data;
-using System.Globalization;
+using Linxens.Core.Service;
 
 namespace Linxens.Gui
 {
@@ -17,22 +18,31 @@ namespace Linxens.Gui
     /// </summary>
     public partial class RepetitiveGUI : Window
     {
+        private readonly ILogger _technicalLogger;
+
         public RepetitiveGUI()
         {
-            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            TechnicalLogger.logUi = this.AppendTechnicalLogs;
+            QadLogger.logUi = this.AppendQadLogs;
+            this._technicalLogger = TechnicalLogger.Instance;
+
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             this.InitializeComponent();
+
+            this._technicalLogger.LogInfo("APPLICATION START", "");
 
             this.DataFileService = new DataFileService();
             this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
+            if (this.gr_result.Items.Count > 0) this.SelectDatagridRow(0);
         }
 
         public DataFileService DataFileService { get; set; }
 
-        
+
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            this.Statut.Background = System.Windows.Media.Brushes.Green;
-            Statut.Text = "READY";
+            this.Statut.Background = Brushes.Green;
+            this.Statut.Text = "READY";
             this.DataFileService._technicalLogger.LogInfo("Status", "The status is going to ready. File selected is ready for submission");
             ;
             DataGridRow sdr = (DataGridRow) sender;
@@ -56,33 +66,32 @@ namespace Linxens.Gui
             this.tb_printer.Text = this.DataFileService.CurrentFile.Printer;
             this.tb_numbofconfparts.Text = this.DataFileService.CurrentFile.NumbOfConfParts;
 
-
-            //_test = DataFileService.CurrentFile.Scrap;
-            gr_scraps.ItemsSource = DataFileService.CurrentFile.Scrap.ToArray();
-            //gr_scraps.Items.Refresh();
-            //this.gr_scraps.Columns.RemoveAt(0);
-            //this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
-
-
-
+            this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+            this.gr_scraps.UpdateLayout();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            QadService qadService = new QadService("p#66word999", "zhouhm", "4327");
-            qadService.Send(DataFileService.CurrentFile);
+            AppSettingsReader config = new AppSettingsReader();
+            string User = config.GetValue("LogDirectory", typeof(string)) as string;
+            string Domain = config.GetValue("LogDirectory", typeof(string)) as string;
+            string Password = config.GetValue("LogDirectory", typeof(string)) as string;
+
+            QadService qadService = new QadService(Password, User, Domain);
+            qadService.Send(this.DataFileService.CurrentFile);
         }
-        
+
         private void RemoveScrap(object sender, RoutedEventArgs e)
         {
             int i = 0;
-            var test = DataFileService.CurrentFile.Scrap;
+            List<Quality> test = this.DataFileService.CurrentFile.Scrap;
             int ItemsSelected = this.gr_scraps.SelectedItems.Count;
-            if (gr_result.SelectedItem == null){
+            if (this.gr_result.SelectedItem == null)
+            {
                 MessageBox.Show("Select a file!");
-                DataFileService._technicalLogger.LogWarning("Select File", "You dont have selected a file");
+                this.DataFileService._technicalLogger.LogWarning("Select File", "You dont have selected a file");
             }
-            else if (gr_scraps.SelectedItem == null)
+            else if (this.gr_scraps.SelectedItem == null)
             {
                 MessageBox.Show("select a scrap to delete it!");
                 this.DataFileService._technicalLogger.LogWarning("Select Scrap", "You dont have selected a scrap");
@@ -97,119 +106,100 @@ namespace Linxens.Gui
                         Quality itm = this.gr_scraps.SelectedItems[i] as Quality;
                         if (itm != null)
                         {
-                            if (messageBoxResult == MessageBoxResult.Yes)
-                                test.Remove(itm);
+                            if (messageBoxResult == MessageBoxResult.Yes) test.Remove(itm);
                             i++;
-                            DataFileService._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
+                            this.DataFileService._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
                         }
                     }
-                    tb_qty.Text = DataFileService.CurrentFile.Qty;
+
+                    this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
                     this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
                 }
             }
         }
-        
+
         private void AddScrap(object sender, RoutedEventArgs e)
         {
-            if (gr_result.SelectedItem == null)
+            if (this.gr_result.SelectedItem == null)
             {
                 MessageBox.Show("You can not add scrap to a non-existent file. Please select a file!");
                 this.DataFileService._technicalLogger.LogWarning("Add line for Scap", "You haven't select a file in the file directory for add it a scrap");
             }
             else
             {
-                int i = DataFileService.CurrentFile.Scrap.Count;
-                var c = DataFileService.CurrentFile.Scrap;
+                int i = this.DataFileService.CurrentFile.Scrap.Count;
+                List<Quality> c = this.DataFileService.CurrentFile.Scrap;
                 c.Add(new Quality
                 {
-                    Qty = "",//DataFileService.CurrentFile.Scrap[i - 1].Qty,
-                    RsnCode ="",
-                    Tape = DataFileService.CurrentFile.Scrap[i-1].Tape
-                    
+                    Qty = "",
+                    RsnCode = "",
+                    Tape = this.DataFileService.CurrentFile.Scrap[i - 1].Tape
                 });
                 i++;
-                DataFileService.CurrentFile.Scrap = c;
-                gr_scraps.CurrentItem = c;
-                DataFileService._technicalLogger.LogInfo("Add Line for Scrap", "You have add line for a new scrap");
+                this.DataFileService.CurrentFile.Scrap = c;
+                this.gr_scraps.CurrentItem = c;
+                this.DataFileService._technicalLogger.LogInfo("Add Line for Scrap", "You have add line for a new scrap");
                 this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
-                tb_qty.Text = DataFileService.CurrentFile.Qty;
+                this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
             }
         }
 
-        private static object GetCellValue(DataGridCellInfo cell)
-        {
-            var boundItem = cell.Item;
-            var binding = new Binding();
-            if (cell.Column is DataGridTextColumn)
-            {
-                binding = ((DataGridTextColumn)cell.Column).Binding as Binding;
-            }
-            else if (cell.Column is DataGridCheckBoxColumn)
-            {
-                binding = ((DataGridCheckBoxColumn)cell.Column).Binding as Binding;
-            }
-            else if (cell.Column is DataGridComboBoxColumn)
-            {
-                binding = ((DataGridComboBoxColumn)cell.Column).SelectedValueBinding as Binding;
-
-                if (binding == null)
-                {
-                    binding = ((DataGridComboBoxColumn)cell.Column).SelectedItemBinding as Binding;
-                }
-            }
-
-            if (binding != null)
-            {
-                var propertyName = binding.Path.Path;
-                var propInfo = boundItem.GetType().GetProperty(propertyName);
-                return propInfo.GetValue(boundItem, new object[] { });
-            }
-
-            return null;
-        }
         private void Gr_scraps_LostFocus(object sender, RoutedEventArgs e)
         {
-            //tb_qty.Text = DataFileService.CurrentFile.Qty;
-            var HoldValueCell = DataFileService.CurrentFile.InitialQty;
-            var cell = (e.OriginalSource as DataGridCell);
+            string HoldValueCell = this.DataFileService.CurrentFile.InitialQty;
+            DataGridCell cell = e.OriginalSource as DataGridCell;
 
             if (cell == null)
             {
-                var test = (e.OriginalSource as TextBox);
-                var val = test.Text;
-                var scrap = DataFileService.CurrentFile.Scrap.FirstOrDefault(s => s.Qty == "");
+                TextBox test = e.OriginalSource as TextBox;
+                string val = test.Text;
+                Quality scrap = this.DataFileService.CurrentFile.Scrap.FirstOrDefault(s => s.Qty == "");
                 if (scrap == null)
                 {
-                    var test2 = gr_scraps.Items.SourceCollection;
+                    IEnumerable test2 = this.gr_scraps.Items.SourceCollection;
                     return;
                 }
 
                 scrap.Qty = val;
-                tb_qty.Text = DataFileService.CurrentFile.Qty;
+                this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
             }
-            else if (cell != null && (string)cell.Column.Header == "Qty")
+            else if (cell != null && (string) cell.Column.Header == "Qty")
             {
-                var tbvalue = DataFileService.CurrentFile.Qty;
-                var txtHoldvalue = HoldValueCell.ToString(CultureInfo.InvariantCulture);
+                string tbvalue = this.DataFileService.CurrentFile.Qty;
+                string txtHoldvalue = HoldValueCell.ToString(CultureInfo.InvariantCulture);
                 if (tbvalue != txtHoldvalue)
-                {
-                    tb_qty.Text = tbvalue;
-                }
+                    this.tb_qty.Text = tbvalue;
                 else
-                {
-                    tb_qty.Text = txtHoldvalue;
-                }
-                //var test = cell.Content.ToString();
-                //string strValue = GetCellValue(new DataGridCellInfo(cell)).ToString();
-                //var cellValue = float.Parse(strValue, CultureInfo.InvariantCulture);
-                //var textBoxValue = float.Parse(tb_qty.Text, CultureInfo.InvariantCulture);
-                //var finalValue = textBoxValue + cellValue;
-                // tb_qty.Text = finalValue.ToString(CultureInfo.InvariantCulture);
-
+                    this.tb_qty.Text = txtHoldvalue;
             }
-
         }
 
-        
+        public void AppendTechnicalLogs(string message)
+        {
+            this.techLogs.Items.Add(message);
+            this.techLogs.SelectedIndex = this.techLogs.Items.Count - 1;
+            this.techLogs.ScrollIntoView(this.techLogs.SelectedItem);
+        }
+
+        public void AppendQadLogs(string message)
+        {
+            this.qadLogs.Items.Add(message);
+            this.qadLogs.SelectedIndex = this.qadLogs.Items.Count - 1;
+            this.qadLogs.ScrollIntoView(this.qadLogs.SelectedItem);
+        }
+
+        private void SelectDatagridRow(int index)
+        {
+            object item = this.gr_result.Items[index];
+            this.gr_result.SelectedItem = item;
+
+            DataGridRow gridRow = new DataGridRow();
+            gridRow.IsSelected = true;
+            gridRow.Item = item;
+            gridRow.DataContext = item;
+
+            MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) {RoutedEvent = MouseDoubleClickEvent};
+            this.DataGridRow_MouseDoubleClick(gridRow, args);
+        }
     }
 }
