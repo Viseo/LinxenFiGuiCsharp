@@ -66,8 +66,11 @@ namespace Linxens.Core.Service
 
         public void ReadFile(string path)
         {
-            if (!File.Exists(path)) //throw new InvalidOperationException($"Path [{path}] not found");
-            _technicalLogger.LogWarning("Read File", string.Format("Failed to read file. The file on path [{0}] is not exist", path));
+            if (!File.Exists(path))
+            {
+                _technicalLogger.LogError("Read File", string.Format("Failed to read file. The file on path [{0}] is not exist", path));
+                return;
+            }
 
             this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
 
@@ -76,27 +79,56 @@ namespace Linxens.Core.Service
             currentLine = this.ReadScrapSection(fileRawData, currentLine);
             this.ReadLastSection(fileRawData, currentLine);
             _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", path));
+            this.CurrentFile.FilePath = path;
         }
-        // A revoir si cela fonctionne bien
-        public string WriteFile(string path)
+
+        public void WriteFile()
         {
-            string[] lines = File.ReadAllLines(path);
-            using (StreamWriter file =
-                new StreamWriter(path))
-            {
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith("Tape#"))
-                    {
-                        file.WriteLine(line);
-                    }
-                }
+            List<string> tab = new List<string>();
 
-                return path;
+            tab.Add("Repetitive:");
+            tab.Add("Site:" + CurrentFile.Site);
+            tab.Add("Emp:" + CurrentFile.Emp);
+            tab.Add("Tr-Type:" + CurrentFile.TrType);
+            tab.Add("Line:" + CurrentFile.Line);
+            tab.Add("PN:" + CurrentFile.PN);
+            tab.Add("OP:" + CurrentFile.OP);
+            tab.Add("WC:" + CurrentFile.WC);
+            tab.Add("MCH:" + CurrentFile.MCH);
+            tab.Add("Lbl:" + CurrentFile.LBL);
+            tab.Add("");
+            tab.Add("Tape#:" + CurrentFile.TapeN);
+            foreach (var quality in CurrentFile.Scrap)
+            {
+                tab.Add("Qty:" + quality.Qty.ToString(CultureInfo.InvariantCulture) + " " + "Rsn Code:" + quality.RsnCode);
             }
-            //throw new NotImplementedException();
+            tab.Add("");
+            tab.Add("WR-PROD:");
+            tab.Add("Tape#:" + CurrentFile.TapeN);
+            tab.Add("Qty:" + CurrentFile.Qty);
+            tab.Add("Defect:" + CurrentFile.Defect);
+            tab.Add("Splices:" + CurrentFile.Splices);
+            tab.Add("Dates:" + CurrentFile.DateTapes);
+            tab.Add("Printers:" + CurrentFile.Printer);
+            tab.Add("Number of conform parts:" + CurrentFile.NumbOfConfParts);
+
+            File.AppendAllLines(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), tab);
         }
 
+        public void successFile()
+        {
+            string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt")); 
+            File.Delete(Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), this.CurrentFile.FilePath));
+            this._technicalLogger.LogInfo("Send data success", CurrentFile.FilePath + "moved in DONE directory");
+        }
+
+        public void ErrorFile()
+        {
+            string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
+            this._technicalLogger.LogInfo("Send data success", "The data file was moved in ERROR directory");
+        }
         private void LoadFileToProcess()
         {
             string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());
@@ -274,25 +306,7 @@ namespace Linxens.Core.Service
             CurrentFile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
             return i;
         }
-        //public static string NullToString(object Value)
-        //{
-        //    return Value == null ? "" : Value.ToString();
-
-        //}
-        //public static Nullable<T> ToNullable<T>(this string s) where T : struct
-        //{
-        //    Nullable<T> result = new Nullable<T>();
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(s) && s.Trim().Length > 0)
-        //        {
-        //            System.ComponentModel.TypeConverter conv = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
-        //            result = (T)conv.ConvertFrom(s);
-        //        }
-        //    }
-        //    catch { }
-        //    return result;
-        //}
+       
         /// <summary>
         ///     Check if directory structure exist
         /// </summary>

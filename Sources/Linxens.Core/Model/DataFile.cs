@@ -7,6 +7,8 @@ namespace Linxens.Core.Model
 {
     public class DataFile
     {
+        public string FilePath { get; set; }
+
         public string Site { get; set; }
         public string Emp { get; set; }
         public string TrType { get; set; }
