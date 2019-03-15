@@ -116,7 +116,7 @@ namespace Linxens.Gui
                 {
                     bool res = qadService.Send(this.DataFileService.CurrentFile);
                     this.ChangeUiState(true); // Call UI Thread
-                    this.onSendFinished(true);
+                    this.onSendFinished(res);
                 });
 
                 sendThread.Start();

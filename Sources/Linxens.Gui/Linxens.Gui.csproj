@@ -97,6 +97,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.Release.config">
+      <DependentUpon>app.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="app.Debug.config">
+      <DependentUpon>app.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Linxens.Core\Linxens.Core.csproj">
       <Project>{4b673f91-a3a6-480d-936b-3227a56e3df5}</Project>
       <Name>Linxens.Core</Name>
