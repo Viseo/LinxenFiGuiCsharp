@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,10 @@ namespace Linxens.Gui
     {
         private readonly ILogger _technicalLogger;
         private readonly ILogger _qadLogger;
+        
+        private Regex Reg1 = new Regex("^[0-9]*$+");
+        private Regex Reg2 = new Regex("^[a-zA-Z0-9-]*$");
+        //private Regex Reg3 = new Regex("^[A-Z\x2D-]*$");
 
         public DataFileService DataFileService { get; set; }
 
@@ -303,6 +308,174 @@ namespace Linxens.Gui
 
             MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) {RoutedEvent = MouseDoubleClickEvent};
             this.DataGridRow_MouseDoubleClick(gridRow, args);
+        }
+    
+
+        private void Tb_splice_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg1.IsMatch(tb_splice.Text))
+            {
+                //e.Handled = Reg1.IsMatch(tb_splice.Text);
+                try
+                {
+                    if (tb_splice.Text == "")
+                        DataFileService.CurrentFile.Splices = null;
+
+                    else
+                        DataFileService.CurrentFile.Splices = int.Parse(tb_splice.Text);
+                }
+                catch (InvalidCastException x)
+                {
+                    throw x;  
+                }
+            }
+            else
+            {
+                tb_splice.Text = DataFileService.CurrentFile.Splices.ToString();
+            }
+        }
+
+        
+        private void Tb_defect_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg1.IsMatch(tb_defect.Text))
+            {
+                try
+                {
+                    if (tb_defect.Text == "")
+                        DataFileService.CurrentFile.Defect = null;
+
+                    else
+                        DataFileService.CurrentFile.Defect = int.Parse(tb_defect.Text);   
+                }
+                catch (InvalidCastException x)
+                {
+                    throw x;
+                }
+            }
+            else
+                tb_defect.Text = DataFileService.CurrentFile.Defect.ToString();
+        }
+
+      
+        private void Tb_lbl_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_lbl.Text))
+                DataFileService.CurrentFile.LBL = tb_lbl.Text;
+
+            else
+                tb_lbl.Text = DataFileService.CurrentFile.LBL;
+        }
+
+        private void Tb_trtype_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_trtype.Text))
+                DataFileService.CurrentFile.TrType = tb_trtype.Text;
+
+            else
+                tb_trtype.Text = DataFileService.CurrentFile.TrType;
+        }
+
+        private void Tb_pn_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_pn.Text))
+                DataFileService.CurrentFile.PN = tb_pn.Text;
+
+            else
+                tb_pn.Text = DataFileService.CurrentFile.PN;
+        }
+
+        private void Tb_emp_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_emp.Text))
+                DataFileService.CurrentFile.Emp = tb_emp.Text;
+
+            else
+                tb_emp.Text = DataFileService.CurrentFile.Emp;
+        }
+
+        private void Tb_site_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg1.IsMatch(tb_site.Text))
+                DataFileService.CurrentFile.Site = tb_site.Text;
+
+            else
+                tb_site.Text = DataFileService.CurrentFile.Site;
+        }
+
+
+        private void Tb_line_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_line.Text) && tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l"))
+                DataFileService.CurrentFile.Line = tb_line.Text;
+
+            else
+                tb_line.Text = DataFileService.CurrentFile.Line;
+        }
+
+        private void Tb_op_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg1.IsMatch(tb_op.Text))
+            {
+                try
+                {
+                    if (tb_op.Text == "")
+                        DataFileService.CurrentFile.OP = null;
+
+                    else
+                        DataFileService.CurrentFile.OP = int.Parse(tb_op.Text);
+                }
+                catch (InvalidCastException x)
+                {
+                    throw x;
+                }
+            }
+            else
+                tb_op.Text = DataFileService.CurrentFile.OP.ToString();
+        }
+
+        private void Tb_wc_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_wc.Text))
+                DataFileService.CurrentFile.WC = tb_wc.Text;
+
+            else
+                tb_wc.Text = DataFileService.CurrentFile.WC;
+        }
+
+        private void Tb_mhc_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_mhc.Text))
+                DataFileService.CurrentFile.MCH = tb_mhc.Text;
+
+            else
+                tb_mhc.Text = DataFileService.CurrentFile.MCH;
+        }
+
+        private void Tb_numbofconfparts_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg1.IsMatch(tb_numbofconfparts.Text))
+                DataFileService.CurrentFile.NumbOfConfParts = tb_numbofconfparts.Text;
+
+            else
+                tb_numbofconfparts.Text = DataFileService.CurrentFile.NumbOfConfParts;
+        }
+
+        private void Tb_printer_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_printer.Text))
+                DataFileService.CurrentFile.Printer = tb_printer.Text;
+
+            else
+                tb_printer.Text = DataFileService.CurrentFile.Printer;
+        }
+        private void Tb_tapeN_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Reg2.IsMatch(tb_tapeN.Text))
+                DataFileService.CurrentFile.TapeN = tb_tapeN.Text;
+
+            else
+                tb_tapeN.Text = DataFileService.CurrentFile.TapeN;
         }
     }
 }

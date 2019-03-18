@@ -129,6 +129,7 @@ namespace Linxens.Core.Service
             File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
             this._technicalLogger.LogInfo("Send data success", "The data file was moved in ERROR directory");
         }
+
         private void LoadFileToProcess()
         {
             string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());

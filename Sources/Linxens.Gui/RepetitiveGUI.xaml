@@ -15,23 +15,23 @@
                 VerticalAlignment="Top" Width="335"/>
 
         <TextBox x:Name="tb_site" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,80,0,0" />
+                 Width="120" Margin="435,80,0,0" KeyUp="Tb_site_KeyUp"/>
         <TextBox x:Name="tb_emp" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,108,0,0" />
+                 Width="120" Margin="435,108,0,0" KeyUp="Tb_emp_KeyUp"/>
         <TextBox x:Name="tb_trtype" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,136,0,0" />
+                 Width="120" Margin="435,136,0,0" KeyUp="Tb_trtype_KeyUp"/>
         <TextBox x:Name="tb_line" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,164,0,0" />
+                 Width="120" Margin="435,164,0,0" KeyUp="Tb_line_KeyUp"/>
         <TextBox x:Name="tb_pn" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,192,0,0" />
+                 Width="120" Margin="435,192,0,0" KeyUp="Tb_pn_KeyUp"/>
         <TextBox x:Name="tb_op" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,220,0,0" />
+                 Width="120" Margin="435,220,0,0" KeyUp="Tb_op_KeyUp"/>
         <TextBox x:Name="tb_wc" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,248,0,0" />
+                 Width="120" Margin="435,248,0,0" KeyUp="Tb_wc_KeyUp"/>
         <TextBox x:Name="tb_mhc" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,276,0,0" />
+                 Width="120" Margin="435,276,0,0" KeyUp="Tb_mhc_KeyUp"/>
         <TextBox x:Name="tb_lbl" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="435,304,0,0" />
+                 Width="120" Margin="435,304,0,0" KeyUp="Tb_lbl_KeyUp"/>
         <Label Content="Site" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,77,0,0" />
         <Label Content="Lbl" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,301,0,0" />
         <Label Content="MCH" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="345,273,0,0" />
@@ -44,13 +44,13 @@
         <TextBox x:Name="tb_qty" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
                  Width="120" Margin="680,80,0,0" IsEnabled="False" />
         <TextBox x:Name="tb_numbofconfparts" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"
-                 VerticalAlignment="Top" Width="120" Margin="680,192,0,0" />
+                 VerticalAlignment="Top" Width="120" Margin="680,192,0,0" KeyUp="Tb_numbofconfparts_KeyUp"/>
         <TextBox x:Name="tb_printer" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="680,164,0,0" />
+                 Width="120" Margin="680,164,0,0" KeyUp="Tb_printer_KeyUp"/>
         <TextBox x:Name="tb_splice" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="680,136,0,0" />
+                 Width="120" Margin="680,136,0,0" KeyUp="Tb_splice_KeyUp"/>
         <TextBox x:Name="tb_defect" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
-                 Width="120" Margin="680,108,0,0" />
+                 Width="120" Margin="680,108,0,0" KeyUp="Tb_defect_KeyUp"/>
         <Label Content="Conform Parts" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,189,0,0" />
         <Label Content="Printer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,161,0,0" />
         <Label Content="Splice" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="589,133,0,0"
@@ -105,7 +105,7 @@
         <ListBox Name="techLogs" HorizontalAlignment="Left" Height="237" VerticalAlignment="Top" Width="397" Margin="413,556,0,0"/>
         <ListBox Name="qadLogs" HorizontalAlignment="Left" Height="238" VerticalAlignment="Top" Width="398" Margin="10,555,0,0"/>
         <TextBox x:Name="tb_tapeN" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"
-            VerticalAlignment="Top" Width="120" Margin="680,220,0,0" />
+            VerticalAlignment="Top" Width="120" Margin="680,220,0,0" KeyUp="Tb_tapeN_KeyUp"/>
         <Label Content="Tape#" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="590,217,0,0" />
 
     </Grid>
