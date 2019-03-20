@@ -51,7 +51,7 @@ ECHO     Instanciation des fichiers .config
 ECHO  -========================================- 
 attrib -r "..\app.Release.config"
 replenv.exe "..\app.Release.config" "..\Linxens.Gui.exe.config"
-replenv.exe "..\app.Release.config" "..\Linxens.Core.config"
+del -f "..\app.Release.config"
 
 REM attrib -r "%INSTDIR%\Linxens.Core.config"
 REM replenv.exe %INSTDIR%\Linxens.Core.config %INSTDIR%\Linxens.Core.config

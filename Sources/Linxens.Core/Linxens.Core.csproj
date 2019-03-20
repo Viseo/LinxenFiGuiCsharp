@@ -81,7 +81,6 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Service References\QADServices\Linxens.Core.QADServices.xxf2q01_tt_Error_WarningRow.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>

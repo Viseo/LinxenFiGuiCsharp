@@ -20,9 +20,10 @@ Compression=lzma2
 SolidCompression=yes
 
 [Files]
-Source: "..\Sources\Linxens.Gui\bin\x86\Debug\Linxens.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Sources\Linxens.Gui\bin\x86\Debug\Linxens.Gui.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Sources\Linxens.Gui\bin\x86\Debug\app.Release.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Gui.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Gui.exe.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\app.Release.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Inst\postConfig.bat"; DestDir: "{app}\Inst"; Flags: ignoreversion
 Source: ".\Inst\replenv.exe"; DestDir: "{app}\Inst"; Flags: ignoreversion
 
@@ -66,13 +67,7 @@ begin
     DirectoryPage.Values[1] := ExpandConstant('{userappdata}\Data\{#MyAppName}');
     DirectoryPage.Values[2] := ExpandConstant('{userappdata}\Logs\{#MyAppName}');
 
-   { Install Folder Page }
-    InstallFolderPage := CreateInputDirPage(wpWelcome,
-      'Select Destination Location', 'Where should {#MyAppName} be installed ?',
-      '', False, 'New Folder');
-    InstallFolderPage.Add('To continue, click Next. If you would like to select a different folder, click Browse.');
 
-    InstallFolderPage.Values[0] := ExpandConstant('{pf}\{#MyAppName}');
 end;
 
 // Check if required field are filled
