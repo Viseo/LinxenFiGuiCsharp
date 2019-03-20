@@ -43,7 +43,7 @@ namespace Linxens.Core.Model
 
                 //foreach (Quality quality in this.Scrap) totalScrap += float.Parse(quality.Qty, CultureInfo.InvariantCulture);
                 float initialFloat = float.Parse(this.InitialQty, CultureInfo.InvariantCulture);
-                return (initialFloat + totalScrap).ToString(CultureInfo.InvariantCulture);
+                return (initialFloat - totalScrap).ToString(CultureInfo.InvariantCulture);
             }
             set { this._qty = value; }
         }

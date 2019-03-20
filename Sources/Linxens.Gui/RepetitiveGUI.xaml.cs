@@ -15,6 +15,8 @@ using System.Windows.Threading;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
 using Linxens.Core.Service;
+using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace Linxens.Gui
 {
@@ -59,15 +61,22 @@ namespace Linxens.Gui
 
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            this.ChangeUiState(true);
+            
 
-            this.Statut.Background = Brushes.Green;
-            this.Statut.Text = "READY";
-            this.DataFileService._technicalLogger.LogInfo("Status", "File selected READY for transmission");
+            this.ChangeUiState(false);
+
             DataGridRow sdr = (DataGridRow) sender;
             string file = sdr.DataContext.ToString();
+            var datafile = this.DataFileService.ReadFile(file);
 
-            this.DataFileService.ReadFile(file);
+            if(datafile == null)
+            {
+                gr_result.IsEnabled = true;
+                DataFileService._technicalLogger.LogWarning("Read File", "This File is not read correctly");
+                return;
+            }
+
+            DataFileService.CurrentFile = datafile;
 
             this.tb_site.Text = this.DataFileService.CurrentFile.Site;
             this.tb_emp.Text = this.DataFileService.CurrentFile.Emp;
@@ -88,6 +97,11 @@ namespace Linxens.Gui
 
             this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
             this.gr_scraps.UpdateLayout();
+
+            this.Statut.Background = Brushes.Green;
+            this.Statut.Text = "READY";
+            this.ChangeUiState(true);
+            this.DataFileService._technicalLogger.LogInfo("Status", "File selected READY for transmission");
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -406,7 +420,7 @@ namespace Linxens.Gui
 
         private void Tb_line_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_line.Text) && tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l"))
+            if (Reg2.IsMatch(tb_line.Text) /*&& tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l")*/)
                 DataFileService.CurrentFile.Line = tb_line.Text;
 
             else
@@ -477,5 +491,38 @@ namespace Linxens.Gui
             else
                 tb_tapeN.Text = DataFileService.CurrentFile.TapeN;
         }
+
+        private void AddFileWithBrowse(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Filter = "(*.txt)|*.txt";
+
+            try
+            {
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    DataFileService.MoveToTODODirectory(dialog.FileName);
+                    
+                    var isOk = DataFileService.VerifFile(Path.GetFileName(dialog.FileName));
+                    if (!isOk)
+                    {
+                        File.Delete(dialog.FileName);
+                    }
+                    DataFileService.LoadFileToProcess();
+                    this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
+                    //else
+                    //{
+
+                    //}
+
+                }
+            }
+            catch (Exception ex)
+            {
+                DataFileService._technicalLogger.LogError("Import File", string.Format("This File is not a valid FI Station"));
+                ex.ToString();
+            }
+        }
+            
     }
 }

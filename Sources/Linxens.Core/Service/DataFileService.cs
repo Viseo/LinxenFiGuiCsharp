@@ -22,7 +22,6 @@ namespace Linxens.Core.Service
             this._qadLogger = QadLogger.Instance;
 
             this._config = new AppSettingsReader();
-            this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
             this.FilesToProcess = new List<string>();
 
             try
@@ -64,24 +63,53 @@ namespace Linxens.Core.Service
 
         public IList<string> FilesToProcess { get; set; }
 
-        public void ReadFile(string path)
+        public DataFile ReadFile(string fileName)
         {
-            if (!File.Exists(path))
+            // check if exist
+            string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());
+            string fullPath = Path.Combine(todoDir, fileName);
+            // Possible si le fichier exist déja dans TODO. Dans le cas d'un import de fichier "on ne peut pas faire un File.Exists dans TODO 
+            if (!File.Exists(fullPath))
             {
-                _technicalLogger.LogError("Read File", string.Format("Failed to read file. The file on path [{0}] is not exist", path));
-                return;
+                _technicalLogger.LogError("Read File", string.Format("Failed to read file. The file on path [{0}] is not a valid FI Station", fullPath));
+                return null;
             }
 
-            this.CurrentFile = new DataFile {Scrap = new List<Quality>()};
 
-            string[] fileRawData = File.ReadAllLines(path);
-            int currentLine = this.ReadFirstSection(fileRawData);
-            currentLine = this.ReadScrapSection(fileRawData, currentLine);
-            this.ReadLastSection(fileRawData, currentLine);
-            _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", path));
-            this.CurrentFile.FilePath = path;
+            var dataFile = new DataFile { Scrap = new List<Quality>() };
+
+            try
+            {
+                string[] fileRawData = File.ReadAllLines(fullPath);
+
+                int currentLine = this.ReadFirstSection(ref dataFile, fileRawData);
+                currentLine = this.ReadScrapSection(ref dataFile, fileRawData, currentLine);
+                this.ReadLastSection(ref dataFile, fileRawData, currentLine);
+            }
+            catch (Exception)
+            {
+                _technicalLogger.LogError("Read File", string.Format("The file [{0}] is not read successfully", fileName));
+                return null;
+            }
+
+            _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", fileName));
+            dataFile.FilePath = fullPath;
+
+            return dataFile;
         }
+        public bool VerifFile(string fileName)
+        {
+            var tmpDataFile = this.ReadFile(fileName);
 
+            if (tmpDataFile == null)
+            {
+                _technicalLogger.LogError("Load File", string.Format("The File [{0}] is not a valid FI Station", fileName));
+                return false;
+            }
+            _technicalLogger.LogInfo("Load File", string.Format("The File [{0}] is loaded successfully", fileName));
+            return true;
+
+        }
         public void WriteFile()
         {
             List<string> tab = new List<string>();
@@ -118,7 +146,7 @@ namespace Linxens.Core.Service
         public void successFile()
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt")); 
+            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt"));
             File.Delete(Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), this.CurrentFile.FilePath));
             this._technicalLogger.LogInfo("Send data success", CurrentFile.FilePath + "moved in DONE directory");
         }
@@ -130,7 +158,7 @@ namespace Linxens.Core.Service
             this._technicalLogger.LogInfo("Send data success", "The data file was moved in ERROR directory");
         }
 
-        private void LoadFileToProcess()
+        public void LoadFileToProcess()
         {
             string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());
 
@@ -138,7 +166,7 @@ namespace Linxens.Core.Service
             if (realFiles.Any())
                 foreach (string realFile in realFiles)
                 {
-                    string fileName = Path.GetFileName(realFile).Replace(".txt", string.Format("_{0:yyyy-MM-dd  HH-mm-ss-fff}.txt", DateTime.Now));
+                    string fileName = Path.GetFileName(realFile).Replace(".txt", string.Format("_{0:yyyy-MM-dd_HH-mm-ss-fff}.txt", DateTime.Now));
                     _technicalLogger.LogInfo("Creation file to process", string.Format("The file [{0}] is created successfully", fileName));
                     if (fileName != null)
                     {
@@ -169,7 +197,7 @@ namespace Linxens.Core.Service
         /// </summary>
         /// <param name="txtFile"></param>
         /// <returns></returns>
-        private int ReadFirstSection(string[] txtFile)
+        private int ReadFirstSection(ref DataFile datafile, string[] txtFile)
         {
             int i;
             for (i = 0; i < txtFile.Length; i++)
@@ -180,33 +208,37 @@ namespace Linxens.Core.Service
                 string[] items = line.Split(':');
                 switch (items[0])
                 {
+                    case "Repetitive":
+                        break;
                     case "Site":
-                        this.CurrentFile.Site = items[1];
+                        datafile.Site = items[1];
                         break;
                     case "Emp":
-                        this.CurrentFile.Emp = items[1];
+                        datafile.Emp = items[1];
                         break;
                     case "Tr-Type":
-                        this.CurrentFile.TrType = items[1];
+                        datafile.TrType = items[1];
                         break;
                     case "Line":
-                        this.CurrentFile.Line = items[1];
+                        datafile.Line = items[1];
                         break;
                     case "PN":
-                        this.CurrentFile.PN = items[1];
+                        datafile.PN = items[1];
                         break;
                     case "OP":
-                        this.CurrentFile.OP = Convert.ToInt32(items[1]);
+                        datafile.OP = Convert.ToInt32(items[1]);
                         break;
                     case "WC":
-                        this.CurrentFile.WC = items[1];
+                        datafile.WC = items[1];
                         break;
                     case "MCH":
-                        this.CurrentFile.MCH = items[1];
+                        datafile.MCH = items[1];
                         break;
                     case "Lbl":
-                        this.CurrentFile.LBL = items[1];
+                        datafile.LBL = items[1];
                         break;
+                    default:
+                        throw new ArgumentException();
                 }
             }
 
@@ -219,7 +251,7 @@ namespace Linxens.Core.Service
         /// <param name="txtFile"></param>
         /// <param name="startIndex"></param>
         /// <returns></returns>
-        private int ReadScrapSection(string[] txtFile, int startIndex)
+        private int ReadScrapSection(ref DataFile datafile, string[] txtFile, int startIndex)
         {
             string tape = "";
             int i;
@@ -235,12 +267,14 @@ namespace Linxens.Core.Service
                         tape = items[1];
                         break;
                     case "Qty":
-                        this.CurrentFile.Scrap.Add(new Quality
+                        datafile.Scrap.Add(new Quality
                         {
                             Qty = items[1].Split(' ')[0],
                             RsnCode = items[2]
                         });
                         break;
+                    default:
+                        throw new ArgumentException();
                 }
             }
 
@@ -253,9 +287,9 @@ namespace Linxens.Core.Service
         /// <param name="txtFile"></param>
         /// <param name="startIndex"></param>
         /// <returns></returns>
-        private int ReadLastSection(string[] txtFile, int startIndex)
+        private int ReadLastSection(ref DataFile datafile, string[] txtFile, int startIndex)
         {
-            string qty ="";
+            string qty = "";
             int i;
             for (i = startIndex + 1; i < txtFile.Length; i++)
             {
@@ -264,33 +298,38 @@ namespace Linxens.Core.Service
                 string[] items = line.Split(':');
                 switch (items[0])
                 {
+                    case "WR-PROD":
+                        break;
+
                     case "Qty":
-                        this.CurrentFile.Qty = items[1];
+                        datafile.Qty = items[1];
                         qty = items[1];
                         break;
                     case "Defect":
-                        this.CurrentFile.Defect = Convert.ToInt32(items[1]);
+                        datafile.Defect = Convert.ToInt32(items[1]);
                         break;
                     case "Splices":
-                        this.CurrentFile.Splices = Convert.ToInt32(items[1]);
+                        datafile.Splices = Convert.ToInt32(items[1]);
                         break;
                     case "Dates":
-                        this.CurrentFile.DateTapes = items[1];
+                        datafile.DateTapes = items[1];
                         break;
                     case "Printer":
-                        this.CurrentFile.Printer = items[1];
+                        datafile.Printer = items[1];
                         break;
                     case "Number of conform parts":
-                        this.CurrentFile.NumbOfConfParts = items[1];
+                        datafile.NumbOfConfParts = items[1];
                         break;
                     case "Tape#":
-                        this.CurrentFile.TapeN = items[1];
+                        datafile.TapeN = items[1];
                         break;
+                    default:
+                        throw new ArgumentException();
                 }
             }
 
             float totalScrap = 0f;
-            foreach (Quality quality in this.CurrentFile.Scrap)
+            foreach (Quality quality in datafile.Scrap)
             {
                 bool isValid = true;
                 float current;
@@ -298,16 +337,25 @@ namespace Linxens.Core.Service
 
                 if (isValid)
                     totalScrap += current;
-                
+
 
                 //totalScrap += float.Parse(quality.Qty, CultureInfo.InvariantCulture);
             }
             float currentQty = float.Parse(qty, CultureInfo.InvariantCulture);
-            float initialQty = currentQty - totalScrap;
-            CurrentFile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
+            if (totalScrap < 0)
+            {
+                float initial1Qty = currentQty + totalScrap;
+                datafile.InitialQty = initial1Qty.ToString(CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                float initialQty = currentQty - totalScrap;
+                datafile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
+            }
+
             return i;
         }
-       
+
         /// <summary>
         ///     Check if directory structure exist
         /// </summary>
@@ -334,8 +382,13 @@ namespace Linxens.Core.Service
             _technicalLogger.LogInfo("Creation directory", "ERRORS directory is created successfully");
         }
 
-       //private string UpdateDataQlty(string txtbox, int resultat, )
+        //private string UpdateDataQlty(string txtbox, int resultat, )
 
+        public void MoveToTODODirectory(string filePath)
+        {
+            var filname = Path.GetFileName(filePath).Replace(".txt", string.Format("_{0:yyyy-MM-dd_HH-mm-ss-fff}.txt", DateTime.Now));
+            File.Copy(filePath, Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), filname));
+        }
 
         private enum WorkingType
         {
