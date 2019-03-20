@@ -13,7 +13,7 @@
         </Border>
         <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Height="464" Margin="5,46,0,0"
                 VerticalAlignment="Top" Width="335">
-            <Button Content="Button" HorizontalAlignment="Left" Height="20" Margin="251.2,433.2,0,0" VerticalAlignment="Top" Width="73"  Click="AddFileWithBrowse"/>
+            <Button Content="Browse" HorizontalAlignment="Left" Height="20" Margin="251.2,433.2,0,0" VerticalAlignment="Top" Width="73"  Click="AddFileWithBrowse"/>
         </Border>
 
         <TextBox x:Name="tb_site" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top"
@@ -67,7 +67,7 @@
             </DataGrid.Columns>
             <DataGrid.ItemContainerStyle>
                 <Style TargetType="DataGridRow">
-                    <EventSetter Event="MouseDown" Handler="DataGridRow_MouseDoubleClick" />
+                    <EventSetter Event="MouseLeftButtonDown" Handler="DataGridRow_MouseDoubleClick" />
                 </Style>
             </DataGrid.ItemContainerStyle>
         </DataGrid>
@@ -103,7 +103,7 @@
                   />
         <Label Content="Status :" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="289,524,0,0"
                FontWeight="Bold" />
-        <Button Name="btSend" Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="ButtonBase_OnClick"/>
+        <Button Name="btSend" Content="Submit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Margin="725,515,0,0" Click="Submit_OnClick"/>
         <ListBox Name="techLogs" HorizontalAlignment="Left" Height="237" VerticalAlignment="Top" Width="397" Margin="413,556,0,0"/>
         <ListBox Name="qadLogs" HorizontalAlignment="Left" Height="238" VerticalAlignment="Top" Width="398" Margin="10,555,0,0"/>
         <TextBox x:Name="tb_tapeN" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap"

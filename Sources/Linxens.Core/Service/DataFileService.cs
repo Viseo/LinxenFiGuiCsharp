@@ -12,14 +12,12 @@ namespace Linxens.Core.Service
     public class DataFileService
     {
         private readonly AppSettingsReader _config;
-        public readonly ILogger _qadLogger;
 
         public readonly ILogger _technicalLogger;
 
         public DataFileService()
         {
             this._technicalLogger = TechnicalLogger.Instance;
-            this._qadLogger = QadLogger.Instance;
 
             this._config = new AppSettingsReader();
             this.FilesToProcess = new List<string>();
@@ -71,12 +69,12 @@ namespace Linxens.Core.Service
             // Possible si le fichier exist déja dans TODO. Dans le cas d'un import de fichier "on ne peut pas faire un File.Exists dans TODO 
             if (!File.Exists(fullPath))
             {
-                _technicalLogger.LogError("Read File", string.Format("Failed to read file. The file on path [{0}] is not a valid FI Station", fullPath));
+                this._technicalLogger.LogError("Read File", string.Format("Failed to read file. The file on path [{0}] is not a valid FI Station", fullPath));
                 return null;
             }
 
 
-            var dataFile = new DataFile { Scrap = new List<Quality>() };
+            DataFile dataFile = new DataFile {Scrap = new List<Quality>()};
 
             try
             {
@@ -88,73 +86,72 @@ namespace Linxens.Core.Service
             }
             catch (Exception)
             {
-                _technicalLogger.LogError("Read File", string.Format("The file [{0}] is not read successfully", fileName));
+                this._technicalLogger.LogError("Read File", string.Format("[{0}] is not a FI Station File", fileName));
                 return null;
             }
 
-            _technicalLogger.LogInfo("Read File", string.Format("The file [{0}] is read successfully", fileName));
+            this._technicalLogger.LogInfo("Read File", string.Format("[{0}] loaded successfully", fileName));
             dataFile.FilePath = fullPath;
 
             return dataFile;
         }
+
         public bool VerifFile(string fileName)
         {
-            var tmpDataFile = this.ReadFile(fileName);
+            DataFile tmpDataFile = this.ReadFile(fileName);
 
             if (tmpDataFile == null)
             {
-                _technicalLogger.LogError("Load File", string.Format("The File [{0}] is not a valid FI Station", fileName));
+                this._technicalLogger.LogError("Load File", string.Format("The File [{0}] is not a valid FI Station", fileName));
                 return false;
             }
-            _technicalLogger.LogInfo("Load File", string.Format("The File [{0}] is loaded successfully", fileName));
-            return true;
 
+            this._technicalLogger.LogInfo("Load File", string.Format("The File [{0}] is loaded successfully", fileName));
+            return true;
         }
+
         public void WriteFile()
         {
             List<string> tab = new List<string>();
 
             tab.Add("Repetitive:");
-            tab.Add("Site:" + CurrentFile.Site);
-            tab.Add("Emp:" + CurrentFile.Emp);
-            tab.Add("Tr-Type:" + CurrentFile.TrType);
-            tab.Add("Line:" + CurrentFile.Line);
-            tab.Add("PN:" + CurrentFile.PN);
-            tab.Add("OP:" + CurrentFile.OP);
-            tab.Add("WC:" + CurrentFile.WC);
-            tab.Add("MCH:" + CurrentFile.MCH);
-            tab.Add("Lbl:" + CurrentFile.LBL);
+            tab.Add("Site:" + this.CurrentFile.Site);
+            tab.Add("Emp:" + this.CurrentFile.Emp);
+            tab.Add("Tr-Type:" + this.CurrentFile.TrType);
+            tab.Add("Line:" + this.CurrentFile.Line);
+            tab.Add("PN:" + this.CurrentFile.PN);
+            tab.Add("OP:" + this.CurrentFile.OP);
+            tab.Add("WC:" + this.CurrentFile.WC);
+            tab.Add("MCH:" + this.CurrentFile.MCH);
+            tab.Add("Lbl:" + this.CurrentFile.LBL);
             tab.Add("");
-            tab.Add("Tape#:" + CurrentFile.TapeN);
-            foreach (var quality in CurrentFile.Scrap)
-            {
-                tab.Add("Qty:" + quality.Qty.ToString(CultureInfo.InvariantCulture) + " " + "Rsn Code:" + quality.RsnCode);
-            }
+            tab.Add("Tape#:" + this.CurrentFile.TapeN);
+            foreach (Quality quality in this.CurrentFile.Scrap) tab.Add("Qty:" + quality.Qty.ToString(CultureInfo.InvariantCulture) + " " + "Rsn Code:" + quality.RsnCode);
             tab.Add("");
             tab.Add("WR-PROD:");
-            tab.Add("Tape#:" + CurrentFile.TapeN);
-            tab.Add("Qty:" + CurrentFile.Qty);
-            tab.Add("Defect:" + CurrentFile.Defect);
-            tab.Add("Splices:" + CurrentFile.Splices);
-            tab.Add("Dates:" + CurrentFile.DateTapes);
-            tab.Add("Printers:" + CurrentFile.Printer);
-            tab.Add("Number of conform parts:" + CurrentFile.NumbOfConfParts);
+            tab.Add("Tape#:" + this.CurrentFile.TapeN);
+            tab.Add("Qty:" + this.CurrentFile.Qty);
+            tab.Add("Defect:" + this.CurrentFile.Defect);
+            tab.Add("Splices:" + this.CurrentFile.Splices);
+            tab.Add("Dates:" + this.CurrentFile.DateTapes);
+            tab.Add("Printers:" + this.CurrentFile.Printer);
+            tab.Add("Number of conform parts:" + this.CurrentFile.NumbOfConfParts);
 
-            File.AppendAllLines(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), tab);
+            File.AppendAllLines(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), tab);
         }
 
         public void successFile()
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt"));
-            File.Delete(Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), this.CurrentFile.FilePath));
-            this._technicalLogger.LogInfo("Send data success", CurrentFile.FilePath + "moved in DONE directory");
+            File.Move(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(this.RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt"));
+            File.Delete(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString(), this.CurrentFile.FilePath));
+            this._technicalLogger.LogInfo("Send data success", this.CurrentFile.FilePath + "moved in DONE directory");
         }
 
         public void ErrorFile()
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-            File.Move(Path.Combine(RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
+            File.Move(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(this.RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
             this._technicalLogger.LogInfo("Send data success", "The data file was moved in ERROR directory");
         }
 
@@ -166,30 +163,37 @@ namespace Linxens.Core.Service
             if (realFiles.Any())
                 foreach (string realFile in realFiles)
                 {
+                    if(!realFile.Contains(".txt"))
+                    {
+                        this._technicalLogger.LogWarning("Load files", string.Format("The file {0} is not a file text", realFile));
+                        continue;
+                    }
+
                     string fileName = Path.GetFileName(realFile).Replace(".txt", string.Format("_{0:yyyy-MM-dd_HH-mm-ss-fff}.txt", DateTime.Now));
-                    _technicalLogger.LogInfo("Creation file to process", string.Format("The file [{0}] is created successfully", fileName));
+                    this._technicalLogger.LogInfo("Creation file to process", string.Format("The file [{0}] is created successfully", fileName));
                     if (fileName != null)
                     {
                         string destPath = Path.Combine(todoDir, fileName);
                         File.Copy(realFile, destPath, true);
-                        _technicalLogger.LogInfo("Copy file on TODO directory", string.Format("The file [{0}] is copied on the TODO directory successfully", fileName));
+                        this._technicalLogger.LogInfo("Copy file on TODO directory", string.Format("The file [{0}] is copied on the TODO directory successfully", fileName));
                         File.Delete(realFile);
-                        _technicalLogger.LogInfo("Delete File on the working directory", string.Format("The file [{0}] is deleted successfully on the working directory", fileName));
+                        this._technicalLogger.LogInfo("Delete File on the working directory", string.Format("The file [{0}] is deleted successfully on the working directory", fileName));
                     }
                 }
 
             this.FilesToProcess = new DirectoryInfo(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString())).GetFiles()
-                        .OrderByDescending(f => f.LastWriteTime)
-                        .Select(f => f.FullName)
-                        .ToArray();
+                .OrderByDescending(f => f.LastWriteTime)
+                .Where(f => f.Name.Contains(".txt"))
+                .Select(f => f.Name)
+                .ToArray();
         }
 
         private void InitConfig()
         {
             this.RootDirPath = this._config.GetValue("RootDirectory", typeof(string)) as string;
-            _technicalLogger.LogInfo("Init root directory", "The root directory is initialized successfully");
+            this._technicalLogger.LogInfo("Init root directory", "The root directory is initialized successfully");
             this.RootWorkingPath = this._config.GetValue("RootWorkingDirectory", typeof(string)) as string;
-            _technicalLogger.LogInfo("Init root working directory", "The root working directory is initialized successfully");
+            this._technicalLogger.LogInfo("Init root working directory", "The root working directory is initialized successfully");
         }
 
         /// <summary>
@@ -335,12 +339,9 @@ namespace Linxens.Core.Service
                 float current;
                 isValid = float.TryParse(quality.Qty, NumberStyles.Float, CultureInfo.InvariantCulture, out current);
 
-                if (isValid)
-                    totalScrap += current;
-
-
-                //totalScrap += float.Parse(quality.Qty, CultureInfo.InvariantCulture);
+                if (isValid) totalScrap += current;
             }
+
             float currentQty = float.Parse(qty, CultureInfo.InvariantCulture);
             if (totalScrap < 0)
             {
@@ -373,21 +374,25 @@ namespace Linxens.Core.Service
             bool errorsExist = Directory.Exists(errorsDir);
 
             if (!todoExist) Directory.CreateDirectory(todoDir);
-            _technicalLogger.LogInfo("Creation directory", "TODO directory is created successfully");
+            this._technicalLogger.LogInfo("Creation directory", "TODO directory is created successfully");
             if (!runningExist) Directory.CreateDirectory(runningDir);
-            _technicalLogger.LogInfo("Creation directory", "RUNNING directory is created successfully");
+            this._technicalLogger.LogInfo("Creation directory", "RUNNING directory is created successfully");
             if (!doneExist) Directory.CreateDirectory(doneDir);
-            _technicalLogger.LogInfo("Creation directory", "DONE directory is created successfully");
+            this._technicalLogger.LogInfo("Creation directory", "DONE directory is created successfully");
             if (!errorsExist) Directory.CreateDirectory(errorsDir);
-            _technicalLogger.LogInfo("Creation directory", "ERRORS directory is created successfully");
+            this._technicalLogger.LogInfo("Creation directory", "ERRORS directory is created successfully");
         }
 
-        //private string UpdateDataQlty(string txtbox, int resultat, )
-
-        public void MoveToTODODirectory(string filePath)
+        public string MoveToTODODirectory(string filePath)
         {
-            var filname = Path.GetFileName(filePath).Replace(".txt", string.Format("_{0:yyyy-MM-dd_HH-mm-ss-fff}.txt", DateTime.Now));
-            File.Copy(filePath, Path.Combine(RootWorkingPath, WorkingType.TODO.ToString(), filname));
+            string fileName = Path.GetFileName(filePath).Replace(".txt", string.Format("_{0:yyyy-MM-dd_HH-mm-ss-fff}.txt", DateTime.Now));
+            File.Copy(filePath, Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString(), fileName));
+            return fileName;
+        }
+
+        public void DeleteFromTodoDirectory(string fileName)
+        {
+            File.Delete(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString(), fileName));
         }
 
         private enum WorkingType

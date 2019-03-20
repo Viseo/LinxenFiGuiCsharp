@@ -3,20 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
 using Linxens.Core.Service;
-using Microsoft.Win32;
-using System.Diagnostics;
+using Application = System.Windows.Application;
+using DataGridCell = System.Windows.Controls.DataGridCell;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace Linxens.Gui
 {
@@ -25,17 +28,15 @@ namespace Linxens.Gui
     /// </summary>
     public partial class RepetitiveGUI : Window
     {
-        private readonly ILogger _technicalLogger;
         private readonly ILogger _qadLogger;
-        
-        private Regex Reg1 = new Regex("^[0-9]*$+");
-        private Regex Reg2 = new Regex("^[a-zA-Z0-9-]*$");
-        //private Regex Reg3 = new Regex("^[A-Z\x2D-]*$");
+        private readonly ILogger _technicalLogger;
 
-        public DataFileService DataFileService { get; set; }
+        private readonly Regex Reg1 = new Regex("^[0-9]*$+");
+        private readonly Regex Reg2 = new Regex("^[a-zA-Z0-9-]*$");
 
         public RepetitiveGUI()
         {
+            this.InitializeComponent();
             TechnicalLogger.logUi = this.AppendTechnicalLogs;
             QadLogger.logUi = this.AppendQadLogs;
 
@@ -43,7 +44,7 @@ namespace Linxens.Gui
             this._qadLogger = QadLogger.Instance;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            this.InitializeComponent();
+
 
             this._technicalLogger.LogInfo("APPLICATION START", "");
             this._qadLogger.LogInfo("APPLICATION START", "");
@@ -52,31 +53,27 @@ namespace Linxens.Gui
             this.DataFileService = new DataFileService();
             this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
 
-            if (this.gr_result.Items.Count > 0)
-            {
-                ChangeUiState(true);
-                this.SelectDatagridRow(0);
-            }
+            this.SelectDatagridRowIfExist();
         }
+
+        public DataFileService DataFileService { get; set; }
 
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            
-
             this.ChangeUiState(false);
 
             DataGridRow sdr = (DataGridRow) sender;
             string file = sdr.DataContext.ToString();
-            var datafile = this.DataFileService.ReadFile(file);
+            DataFile datafile = this.DataFileService.ReadFile(file);
 
-            if(datafile == null)
+            if (datafile == null)
             {
-                gr_result.IsEnabled = true;
-                DataFileService._technicalLogger.LogWarning("Read File", "This File is not read correctly");
+                this.gr_result.IsEnabled = true;
+                this.DataFileService._technicalLogger.LogWarning("Read File", "This File is not read correctly");
                 return;
             }
 
-            DataFileService.CurrentFile = datafile;
+            this.DataFileService.CurrentFile = datafile;
 
             this.tb_site.Text = this.DataFileService.CurrentFile.Site;
             this.tb_emp.Text = this.DataFileService.CurrentFile.Emp;
@@ -96,6 +93,7 @@ namespace Linxens.Gui
             this.tb_tapeN.Text = this.DataFileService.CurrentFile.TapeN;
 
             this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
+            this.gr_scraps.Items.Refresh();
             this.gr_scraps.UpdateLayout();
 
             this.Statut.Background = Brushes.Green;
@@ -104,18 +102,9 @@ namespace Linxens.Gui
             this.DataFileService._technicalLogger.LogInfo("Status", "File selected READY for transmission");
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void Submit_OnClick(object sender, RoutedEventArgs e)
         {
             this.SendData();
-        }
-
-        public static void Invoke(Action action)
-        {
-            Dispatcher dispatchObject = Application.Current.Dispatcher;
-            if (dispatchObject == null || dispatchObject.CheckAccess())
-                action();
-            else
-                dispatchObject.Invoke(action);
         }
 
         private void SendData()
@@ -134,11 +123,10 @@ namespace Linxens.Gui
 
                 Thread sendThread = new Thread(() =>
                 {
-                    DataFileService.WriteFile();
+                    this.DataFileService.WriteFile();
                     bool res = qadService.Send(this.DataFileService.CurrentFile);
                     this.ChangeUiState(true); // Call UI Thread
                     this.onSendFinished(res);
-
                 });
 
                 sendThread.Start();
@@ -153,7 +141,7 @@ namespace Linxens.Gui
                 {
                     this.Statut.Background = Brushes.Green;
                     this.Statut.Text = "DONE";
-                    DataFileService.successFile();
+                    this.DataFileService.successFile();
                     MessageBox.Show("Sending data file Success ! ", "", MessageBoxButton.OK);
                     Application.Current.Shutdown();
                 }
@@ -161,14 +149,14 @@ namespace Linxens.Gui
                 {
                     this.Statut.Background = Brushes.Red;
                     this.Statut.Text = "ERROR";
-                    DataFileService.ErrorFile();
+                    this.DataFileService.ErrorFile();
                     MessageBoxResult response = MessageBox.Show("Sending data file FAILED ! Do you wan to retry sending data ?", "", MessageBoxButton.YesNo);
 
                     if (response == MessageBoxResult.Yes) this.SendData();
                 }
             }));
         }
-    
+
         private void ChangeUiState(bool state)
         {
             this.Dispatcher.Invoke(new Action(() =>
@@ -310,219 +298,217 @@ namespace Linxens.Gui
             }));
         }
 
-        private void SelectDatagridRow(int index)
+        private void SelectDatagridRowIfExist()
         {
-            object item = this.gr_result.Items[index];
-            this.gr_result.SelectedItem = item;
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (this.gr_result.Items.Count > 0)
+                {
+                    DataGridRow row = (DataGridRow) this.gr_result.ItemContainerGenerator.ContainerFromIndex(0);
+                    object item = this.gr_result.Items[0];
+                    this.gr_result.SelectedItem = item;
+                    this.gr_result.SelectedValue = item;
+                    this.gr_result.SelectedIndex = 0;
+                    this.gr_result.CurrentItem = item;
+                    this.gr_result.SelectedItems.Add(item);
 
-            DataGridRow gridRow = new DataGridRow();
-            gridRow.IsSelected = true;
-            gridRow.Item = item;
-            gridRow.DataContext = item;
 
-            MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) {RoutedEvent = MouseDoubleClickEvent};
-            this.DataGridRow_MouseDoubleClick(gridRow, args);
+                    DataGridRow gridRow = new DataGridRow();
+                    gridRow.IsSelected = true;
+                    gridRow.Item = item;
+                    gridRow.DataContext = item;
+
+                    MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) {RoutedEvent = MouseLeftButtonDownEvent};
+                    this.DataGridRow_MouseDoubleClick(gridRow, args);
+                }
+
+                this.ChangeUiState(true);
+            }), DispatcherPriority.ContextIdle, null);
         }
-    
 
         private void Tb_splice_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg1.IsMatch(tb_splice.Text))
-            {
-                //e.Handled = Reg1.IsMatch(tb_splice.Text);
+            if (this.Reg1.IsMatch(this.tb_splice.Text))
                 try
                 {
-                    if (tb_splice.Text == "")
-                        DataFileService.CurrentFile.Splices = null;
+                    if (this.tb_splice.Text == "")
+                        this.DataFileService.CurrentFile.Splices = null;
 
                     else
-                        DataFileService.CurrentFile.Splices = int.Parse(tb_splice.Text);
-                }
-                catch (InvalidCastException x)
-                {
-                    throw x;  
-                }
-            }
-            else
-            {
-                tb_splice.Text = DataFileService.CurrentFile.Splices.ToString();
-            }
-        }
-
-        
-        private void Tb_defect_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (Reg1.IsMatch(tb_defect.Text))
-            {
-                try
-                {
-                    if (tb_defect.Text == "")
-                        DataFileService.CurrentFile.Defect = null;
-
-                    else
-                        DataFileService.CurrentFile.Defect = int.Parse(tb_defect.Text);   
+                        this.DataFileService.CurrentFile.Splices = int.Parse(this.tb_splice.Text);
                 }
                 catch (InvalidCastException x)
                 {
                     throw x;
                 }
-            }
             else
-                tb_defect.Text = DataFileService.CurrentFile.Defect.ToString();
+                this.tb_splice.Text = this.DataFileService.CurrentFile.Splices.ToString();
         }
 
-      
+        private void Tb_defect_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (this.Reg1.IsMatch(this.tb_defect.Text))
+                try
+                {
+                    if (this.tb_defect.Text == "")
+                        this.DataFileService.CurrentFile.Defect = null;
+
+                    else
+                        this.DataFileService.CurrentFile.Defect = int.Parse(this.tb_defect.Text);
+                }
+                catch (InvalidCastException x)
+                {
+                    throw x;
+                }
+            else
+                this.tb_defect.Text = this.DataFileService.CurrentFile.Defect.ToString();
+        }
+
         private void Tb_lbl_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_lbl.Text))
-                DataFileService.CurrentFile.LBL = tb_lbl.Text;
+            if (this.Reg2.IsMatch(this.tb_lbl.Text))
+                this.DataFileService.CurrentFile.LBL = this.tb_lbl.Text;
 
             else
-                tb_lbl.Text = DataFileService.CurrentFile.LBL;
+                this.tb_lbl.Text = this.DataFileService.CurrentFile.LBL;
         }
 
         private void Tb_trtype_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_trtype.Text))
-                DataFileService.CurrentFile.TrType = tb_trtype.Text;
+            if (this.Reg2.IsMatch(this.tb_trtype.Text))
+                this.DataFileService.CurrentFile.TrType = this.tb_trtype.Text;
 
             else
-                tb_trtype.Text = DataFileService.CurrentFile.TrType;
+                this.tb_trtype.Text = this.DataFileService.CurrentFile.TrType;
         }
 
         private void Tb_pn_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_pn.Text))
-                DataFileService.CurrentFile.PN = tb_pn.Text;
+            if (this.Reg2.IsMatch(this.tb_pn.Text))
+                this.DataFileService.CurrentFile.PN = this.tb_pn.Text;
 
             else
-                tb_pn.Text = DataFileService.CurrentFile.PN;
+                this.tb_pn.Text = this.DataFileService.CurrentFile.PN;
         }
 
         private void Tb_emp_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_emp.Text))
-                DataFileService.CurrentFile.Emp = tb_emp.Text;
+            if (this.Reg2.IsMatch(this.tb_emp.Text))
+                this.DataFileService.CurrentFile.Emp = this.tb_emp.Text;
 
             else
-                tb_emp.Text = DataFileService.CurrentFile.Emp;
+                this.tb_emp.Text = this.DataFileService.CurrentFile.Emp;
         }
 
         private void Tb_site_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg1.IsMatch(tb_site.Text))
-                DataFileService.CurrentFile.Site = tb_site.Text;
+            if (this.Reg1.IsMatch(this.tb_site.Text))
+                this.DataFileService.CurrentFile.Site = this.tb_site.Text;
 
             else
-                tb_site.Text = DataFileService.CurrentFile.Site;
+                this.tb_site.Text = this.DataFileService.CurrentFile.Site;
         }
-
 
         private void Tb_line_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_line.Text) /*&& tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l")*/)
-                DataFileService.CurrentFile.Line = tb_line.Text;
+            if (this.Reg2.IsMatch(this.tb_line.Text) /*&& tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l")*/)
+                this.DataFileService.CurrentFile.Line = this.tb_line.Text;
 
             else
-                tb_line.Text = DataFileService.CurrentFile.Line;
+                this.tb_line.Text = this.DataFileService.CurrentFile.Line;
         }
 
         private void Tb_op_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg1.IsMatch(tb_op.Text))
-            {
+            if (this.Reg1.IsMatch(this.tb_op.Text))
                 try
                 {
-                    if (tb_op.Text == "")
-                        DataFileService.CurrentFile.OP = null;
+                    if (this.tb_op.Text == "")
+                        this.DataFileService.CurrentFile.OP = null;
 
                     else
-                        DataFileService.CurrentFile.OP = int.Parse(tb_op.Text);
+                        this.DataFileService.CurrentFile.OP = int.Parse(this.tb_op.Text);
                 }
                 catch (InvalidCastException x)
                 {
                     throw x;
                 }
-            }
             else
-                tb_op.Text = DataFileService.CurrentFile.OP.ToString();
+                this.tb_op.Text = this.DataFileService.CurrentFile.OP.ToString();
         }
 
         private void Tb_wc_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_wc.Text))
-                DataFileService.CurrentFile.WC = tb_wc.Text;
+            if (this.Reg2.IsMatch(this.tb_wc.Text))
+                this.DataFileService.CurrentFile.WC = this.tb_wc.Text;
 
             else
-                tb_wc.Text = DataFileService.CurrentFile.WC;
+                this.tb_wc.Text = this.DataFileService.CurrentFile.WC;
         }
 
         private void Tb_mhc_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_mhc.Text))
-                DataFileService.CurrentFile.MCH = tb_mhc.Text;
+            if (this.Reg2.IsMatch(this.tb_mhc.Text))
+                this.DataFileService.CurrentFile.MCH = this.tb_mhc.Text;
 
             else
-                tb_mhc.Text = DataFileService.CurrentFile.MCH;
+                this.tb_mhc.Text = this.DataFileService.CurrentFile.MCH;
         }
 
         private void Tb_numbofconfparts_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg1.IsMatch(tb_numbofconfparts.Text))
-                DataFileService.CurrentFile.NumbOfConfParts = tb_numbofconfparts.Text;
+            if (this.Reg1.IsMatch(this.tb_numbofconfparts.Text))
+                this.DataFileService.CurrentFile.NumbOfConfParts = this.tb_numbofconfparts.Text;
 
             else
-                tb_numbofconfparts.Text = DataFileService.CurrentFile.NumbOfConfParts;
+                this.tb_numbofconfparts.Text = this.DataFileService.CurrentFile.NumbOfConfParts;
         }
 
         private void Tb_printer_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_printer.Text))
-                DataFileService.CurrentFile.Printer = tb_printer.Text;
+            if (this.Reg2.IsMatch(this.tb_printer.Text))
+                this.DataFileService.CurrentFile.Printer = this.tb_printer.Text;
 
             else
-                tb_printer.Text = DataFileService.CurrentFile.Printer;
+                this.tb_printer.Text = this.DataFileService.CurrentFile.Printer;
         }
+
         private void Tb_tapeN_KeyUp(object sender, KeyEventArgs e)
         {
-            if (Reg2.IsMatch(tb_tapeN.Text))
-                DataFileService.CurrentFile.TapeN = tb_tapeN.Text;
+            if (this.Reg2.IsMatch(this.tb_tapeN.Text))
+                this.DataFileService.CurrentFile.TapeN = this.tb_tapeN.Text;
 
             else
-                tb_tapeN.Text = DataFileService.CurrentFile.TapeN;
+                this.tb_tapeN.Text = this.DataFileService.CurrentFile.TapeN;
         }
 
         private void AddFileWithBrowse(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "(*.txt)|*.txt";
 
             try
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    DataFileService.MoveToTODODirectory(dialog.FileName);
-                    
-                    var isOk = DataFileService.VerifFile(Path.GetFileName(dialog.FileName));
+                    string newFile = this.DataFileService.MoveToTODODirectory(dialog.FileName);
+
+                    bool isOk = this.DataFileService.VerifFile(newFile);
                     if (!isOk)
                     {
-                        File.Delete(dialog.FileName);
+                        this.DataFileService.DeleteFromTodoDirectory(newFile);
+                        MessageBox.Show("The selected file is not a FI Station file", "Loading error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    DataFileService.LoadFileToProcess();
+
+                    this.DataFileService.LoadFileToProcess();
                     this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
-                    //else
-                    //{
-
-                    //}
-
                 }
             }
             catch (Exception ex)
             {
-                DataFileService._technicalLogger.LogError("Import File", string.Format("This File is not a valid FI Station"));
+                this.DataFileService._technicalLogger.LogError("Import File", "This File is not a valid FI Station");
                 ex.ToString();
             }
         }
-            
     }
 }
