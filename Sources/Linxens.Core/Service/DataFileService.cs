@@ -52,6 +52,9 @@ namespace Linxens.Core.Service
         public string WebServiceUrl { get; set; }
         public string WebServiceTimeOut { get; set; }
 
+        //compteur pour nombre de tentatives
+        public int AutoRetrySendOnError { get; set; }
+
         public string RootDirPath { get; set; }
 
         // TODO => write in app.config on var update

@@ -62,14 +62,14 @@ namespace Linxens.Gui
         {
             this.ChangeUiState(false);
 
-            DataGridRow sdr = (DataGridRow) sender;
+            DataGridRow sdr = (DataGridRow)sender;
             string file = sdr.DataContext.ToString();
             DataFile datafile = this.DataFileService.ReadFile(file);
 
             if (datafile == null)
             {
                 this.gr_result.IsEnabled = true;
-                this.DataFileService._technicalLogger.LogWarning("Read File", "This File is not read correctly");
+                this._technicalLogger.LogWarning("Read File", "This File is not read correctly");
                 return;
             }
 
@@ -99,7 +99,7 @@ namespace Linxens.Gui
             this.Statut.Background = Brushes.Green;
             this.Statut.Text = "READY";
             this.ChangeUiState(true);
-            this.DataFileService._technicalLogger.LogInfo("Status", "File selected READY for transmission");
+            this._technicalLogger.LogInfo("Status", "File selected READY for transmission");
         }
 
         private void Submit_OnClick(object sender, RoutedEventArgs e)
@@ -121,11 +121,23 @@ namespace Linxens.Gui
                 string Password = config.GetValue("Password", typeof(string)) as string;
                 QadService qadService = new QadService(Password, User, Domain);
 
+                int Attempt = int.Parse(config.GetValue("AutoRetrySendOnError", typeof(string)) as string);
+
                 Thread sendThread = new Thread(() =>
                 {
+                    bool res = false;
                     this.DataFileService.WriteFile();
-                    bool res = qadService.Send(this.DataFileService.CurrentFile);
-                    this.ChangeUiState(true); // Call UI Thread
+                    for (int i = 1; i <= Attempt; i++)
+                    {
+                        this._qadLogger.LogInfo("Send file", string.Format("Attempt {0}/{1}", i, Attempt));
+                        res = qadService.Send(this.DataFileService.CurrentFile);
+                        if (res)
+                        {
+                            break;
+                        }
+                        this._qadLogger.LogInfo("Send file", string.Format("Sending attempt {0} has failed", i));
+                    }
+                    this.ChangeUiState(true);
                     this.onSendFinished(res);
                 });
 
@@ -150,11 +162,9 @@ namespace Linxens.Gui
                     this.Statut.Background = Brushes.Red;
                     this.Statut.Text = "ERROR";
                     this.DataFileService.ErrorFile();
-                    MessageBoxResult response = MessageBox.Show("Sending data file FAILED ! Do you wan to retry sending data ?", "", MessageBoxButton.YesNo);
-
-                    if (response == MessageBoxResult.Yes) this.SendData();
                 }
             }));
+
         }
 
         private void ChangeUiState(bool state)
@@ -194,12 +204,12 @@ namespace Linxens.Gui
             if (this.gr_result.SelectedItem == null)
             {
                 MessageBox.Show("Select a file!");
-                this.DataFileService._technicalLogger.LogWarning("Select File", "You dont have selected a file");
+                this._technicalLogger.LogWarning("Select File", "You dont have selected a file");
             }
             else if (this.gr_scraps.SelectedItem == null)
             {
                 MessageBox.Show("select a scrap to delete it!");
-                this.DataFileService._technicalLogger.LogWarning("Select Scrap", "You dont have selected a scrap");
+                this._technicalLogger.LogWarning("Select Scrap", "You dont have selected a scrap");
             }
             else
             {
@@ -213,7 +223,7 @@ namespace Linxens.Gui
                         {
                             if (messageBoxResult == MessageBoxResult.Yes) test.Remove(itm);
                             i++;
-                            this.DataFileService._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
+                            this._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
                         }
                     }
 
@@ -228,7 +238,7 @@ namespace Linxens.Gui
             if (this.gr_result.SelectedItem == null)
             {
                 MessageBox.Show("You can not add scrap to a non-existent file. Please select a file!");
-                this.DataFileService._technicalLogger.LogWarning("Add line for Scap", "You haven't select a file in the file directory for add it a scrap");
+                this._technicalLogger.LogWarning("Add line for Scap", "You haven't select a file in the file directory for add it a scrap");
             }
             else
             {
@@ -242,7 +252,7 @@ namespace Linxens.Gui
                 i++;
                 this.DataFileService.CurrentFile.Scrap = c;
                 this.gr_scraps.CurrentItem = c;
-                this.DataFileService._technicalLogger.LogInfo("Add Line for Scrap", "You have add line for a new scrap");
+                this._technicalLogger.LogInfo("Add Line for Scrap", "You have add line for a new scrap");
                 this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
                 this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
             }
@@ -267,7 +277,7 @@ namespace Linxens.Gui
                 scrap.Qty = val;
                 this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
             }
-            else if (cell != null && (string) cell.Column.Header == "Qty")
+            else if (cell != null && (string)cell.Column.Header == "Qty")
             {
                 string tbvalue = this.DataFileService.CurrentFile.Qty;
                 string txtHoldvalue = HoldValueCell.ToString(CultureInfo.InvariantCulture);
@@ -304,7 +314,7 @@ namespace Linxens.Gui
             {
                 if (this.gr_result.Items.Count > 0)
                 {
-                    DataGridRow row = (DataGridRow) this.gr_result.ItemContainerGenerator.ContainerFromIndex(0);
+                    DataGridRow row = (DataGridRow)this.gr_result.ItemContainerGenerator.ContainerFromIndex(0);
                     object item = this.gr_result.Items[0];
                     this.gr_result.SelectedItem = item;
                     this.gr_result.SelectedValue = item;
@@ -312,13 +322,12 @@ namespace Linxens.Gui
                     this.gr_result.CurrentItem = item;
                     this.gr_result.SelectedItems.Add(item);
 
-
                     DataGridRow gridRow = new DataGridRow();
                     gridRow.IsSelected = true;
                     gridRow.Item = item;
                     gridRow.DataContext = item;
 
-                    MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) {RoutedEvent = MouseLeftButtonDownEvent};
+                    MouseButtonEventArgs args = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = MouseLeftButtonDownEvent };
                     this.DataGridRow_MouseDoubleClick(gridRow, args);
                 }
 
@@ -411,7 +420,7 @@ namespace Linxens.Gui
 
         private void Tb_line_KeyUp(object sender, KeyEventArgs e)
         {
-            if (this.Reg2.IsMatch(this.tb_line.Text) /*&& tb_line.Text.StartsWith("L") || tb_line.Text.StartsWith("l")*/)
+            if (this.Reg2.IsMatch(this.tb_line.Text))
                 this.DataFileService.CurrentFile.Line = this.tb_line.Text;
 
             else
@@ -506,7 +515,7 @@ namespace Linxens.Gui
             }
             catch (Exception ex)
             {
-                this.DataFileService._technicalLogger.LogError("Import File", "This File is not a valid FI Station");
+                this._technicalLogger.LogError("Import File", "This File is not a valid FI Station");
                 ex.ToString();
             }
         }
