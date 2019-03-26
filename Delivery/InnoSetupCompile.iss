@@ -1,6 +1,6 @@
 #define MyAppID "{FIAutoDataEntry}"
 #define MyAppName "FIAutoDataEntry"
-#define MyAppVersion "1.0.0.0"
+#define MyAppVersion "1.0.1.0"
 #define MyAppPublisher "Viseo Technologies"
 #define MyAppExeName "Linxens.Gui.exe"
 
@@ -34,7 +34,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
  var
   QadPage: TInputQueryWizardPage;
   DirectoryPage: TInputDirWizardPage;
-  InstallFolderPage: TInputDirWizardPage;
   ProgressPage: TOutputProgressWizardPage;
 
 function ProductInstalled(): Boolean;
