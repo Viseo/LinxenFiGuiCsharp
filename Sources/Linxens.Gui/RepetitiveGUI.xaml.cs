@@ -69,7 +69,7 @@ namespace Linxens.Gui
             if (datafile == null)
             {
                 this.gr_result.IsEnabled = true;
-                this._technicalLogger.LogWarning("Read File", "This File is not read correctly");
+                this._technicalLogger.LogWarning("Read File", "This File is not read correctly. This is due either to the format of the file which is not of type txt or to the contents of the file which does not respect the format of files FI Station");
                 return;
             }
 
@@ -204,12 +204,12 @@ namespace Linxens.Gui
             if (this.gr_result.SelectedItem == null)
             {
                 MessageBox.Show("Select a file!");
-                this._technicalLogger.LogWarning("Select File", "You dont have selected a file");
+                this._technicalLogger.LogInfo("Select File", "You dont have selected a file on the file list. This action can only be performed if you have selected a file in the file list and a Scrap belonging to this file");
             }
             else if (this.gr_scraps.SelectedItem == null)
             {
                 MessageBox.Show("select a scrap to delete it!");
-                this._technicalLogger.LogWarning("Select Scrap", "You dont have selected a scrap");
+                this._technicalLogger.LogInfo("Select Scrap", "You dont have selected a scrap. The removal of a Scrap follows the selection of it");
             }
             else
             {
@@ -223,10 +223,10 @@ namespace Linxens.Gui
                         {
                             if (messageBoxResult == MessageBoxResult.Yes) test.Remove(itm);
                             i++;
-                            this._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} is deleted successfully", i));
+                            this._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} for a file {1} is deleted successfully", i, itm));
                         }
+                        
                     }
-
                     this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
                     this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
                 }
@@ -237,8 +237,8 @@ namespace Linxens.Gui
         {
             if (this.gr_result.SelectedItem == null)
             {
-                MessageBox.Show("You can not add scrap to a non-existent file. Please select a file!");
-                this._technicalLogger.LogWarning("Add line for Scap", "You haven't select a file in the file directory for add it a scrap");
+                MessageBox.Show("You can not add scrap to a non-existent file. Please select a file in the file list!");
+                this._technicalLogger.LogInfo("Add new Scap", "You haven't select a file in the file list. The addition of a scrap follows the selection of a file in the list of files");
             }
             else
             {
@@ -252,7 +252,7 @@ namespace Linxens.Gui
                 i++;
                 this.DataFileService.CurrentFile.Scrap = c;
                 this.gr_scraps.CurrentItem = c;
-                this._technicalLogger.LogInfo("Add Line for Scrap", "You have add line for a new scrap");
+                this._technicalLogger.LogInfo("Add new Scrap", "You have add line for a new scrap on the file selected.");
                 this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
                 this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
             }
@@ -265,12 +265,12 @@ namespace Linxens.Gui
 
             if (cell == null)
             {
-                TextBox test = e.OriginalSource as TextBox;
-                string val = test.Text;
+                TextBox TextBx = e.OriginalSource as TextBox;
+                string val = TextBx.Text;
                 Quality scrap = this.DataFileService.CurrentFile.Scrap.FirstOrDefault(s => s.Qty == "");
                 if (scrap == null)
                 {
-                    IEnumerable test2 = this.gr_scraps.Items.SourceCollection;
+                    IEnumerable collectionFiles = this.gr_scraps.Items.SourceCollection;
                     return;
                 }
 
@@ -345,6 +345,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.Splices = int.Parse(this.tb_splice.Text);
+                        _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of spice to {0}", this.DataFileService.CurrentFile.Splices));
                 }
                 catch (InvalidCastException x)
                 {
@@ -364,6 +365,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.Defect = int.Parse(this.tb_defect.Text);
+                    _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of defect to {0}", this.DataFileService.CurrentFile.Defect));
                 }
                 catch (InvalidCastException x)
                 {
@@ -376,8 +378,10 @@ namespace Linxens.Gui
         private void Tb_lbl_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_lbl.Text))
+            {
                 this.DataFileService.CurrentFile.LBL = this.tb_lbl.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of LBL to {0}", this.DataFileService.CurrentFile.LBL));
+            }
             else
                 this.tb_lbl.Text = this.DataFileService.CurrentFile.LBL;
         }
@@ -385,8 +389,10 @@ namespace Linxens.Gui
         private void Tb_trtype_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_trtype.Text))
+            {
                 this.DataFileService.CurrentFile.TrType = this.tb_trtype.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of TR-Type to {0}", this.DataFileService.CurrentFile.TrType));
+            }
             else
                 this.tb_trtype.Text = this.DataFileService.CurrentFile.TrType;
         }
@@ -394,8 +400,10 @@ namespace Linxens.Gui
         private void Tb_pn_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_pn.Text))
+            {
                 this.DataFileService.CurrentFile.PN = this.tb_pn.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of PN to {0}", this.DataFileService.CurrentFile.PN));
+            }
             else
                 this.tb_pn.Text = this.DataFileService.CurrentFile.PN;
         }
@@ -403,8 +411,10 @@ namespace Linxens.Gui
         private void Tb_emp_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_emp.Text))
+            {
                 this.DataFileService.CurrentFile.Emp = this.tb_emp.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Emp to {0}", this.DataFileService.CurrentFile.Emp));
+            }
             else
                 this.tb_emp.Text = this.DataFileService.CurrentFile.Emp;
         }
@@ -412,7 +422,10 @@ namespace Linxens.Gui
         private void Tb_site_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg1.IsMatch(this.tb_site.Text))
+            {
                 this.DataFileService.CurrentFile.Site = this.tb_site.Text;
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Site to {0}", this.DataFileService.CurrentFile.Site));
+            }
 
             else
                 this.tb_site.Text = this.DataFileService.CurrentFile.Site;
@@ -421,8 +434,10 @@ namespace Linxens.Gui
         private void Tb_line_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_line.Text))
+            {
                 this.DataFileService.CurrentFile.Line = this.tb_line.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Line to {0}", this.DataFileService.CurrentFile.Line));
+            }
             else
                 this.tb_line.Text = this.DataFileService.CurrentFile.Line;
         }
@@ -437,6 +452,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.OP = int.Parse(this.tb_op.Text);
+                        _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of OP to {0}", this.DataFileService.CurrentFile.OP));
                 }
                 catch (InvalidCastException x)
                 {
@@ -449,17 +465,20 @@ namespace Linxens.Gui
         private void Tb_wc_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_wc.Text))
+            {
                 this.DataFileService.CurrentFile.WC = this.tb_wc.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of WC to {0}", this.DataFileService.CurrentFile.WC));
+            }
             else
                 this.tb_wc.Text = this.DataFileService.CurrentFile.WC;
         }
 
         private void Tb_mhc_KeyUp(object sender, KeyEventArgs e)
         {
-            if (this.Reg2.IsMatch(this.tb_mhc.Text))
+            if (this.Reg2.IsMatch(this.tb_mhc.Text)) { 
                 this.DataFileService.CurrentFile.MCH = this.tb_mhc.Text;
-
+            _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of MCH to {0}", this.DataFileService.CurrentFile.MCH));
+        }
             else
                 this.tb_mhc.Text = this.DataFileService.CurrentFile.MCH;
         }
@@ -467,8 +486,10 @@ namespace Linxens.Gui
         private void Tb_numbofconfparts_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg1.IsMatch(this.tb_numbofconfparts.Text))
+            {
                 this.DataFileService.CurrentFile.NumbOfConfParts = this.tb_numbofconfparts.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Number of conf parts to {0}", this.DataFileService.CurrentFile.NumbOfConfParts));
+            }
             else
                 this.tb_numbofconfparts.Text = this.DataFileService.CurrentFile.NumbOfConfParts;
         }
@@ -476,8 +497,10 @@ namespace Linxens.Gui
         private void Tb_printer_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_printer.Text))
+            {
                 this.DataFileService.CurrentFile.Printer = this.tb_printer.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Printer to {0}", this.DataFileService.CurrentFile.Printer));
+            }
             else
                 this.tb_printer.Text = this.DataFileService.CurrentFile.Printer;
         }
@@ -485,8 +508,10 @@ namespace Linxens.Gui
         private void Tb_tapeN_KeyUp(object sender, KeyEventArgs e)
         {
             if (this.Reg2.IsMatch(this.tb_tapeN.Text))
+            {
                 this.DataFileService.CurrentFile.TapeN = this.tb_tapeN.Text;
-
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of WC to {0}", this.DataFileService.CurrentFile.WC));
+            }
             else
                 this.tb_tapeN.Text = this.DataFileService.CurrentFile.TapeN;
         }

@@ -28,7 +28,7 @@ namespace Linxens.Core.Service
             }
             catch (Exception)
             {
-                this._technicalLogger.LogError("Init Configuration", "Error on directory init please check your configuration file");
+                this._technicalLogger.LogError("Init Configuration", "Error on directory init. Please check your configuration file");
             }
 
             try
@@ -38,11 +38,10 @@ namespace Linxens.Core.Service
             }
             catch (Exception)
             {
-                this._technicalLogger.LogError("Init Configuration", "Error on working directory structure init please check your configuration file");
+                this._technicalLogger.LogError("Init Configuration", "Error on working directory structure init. Please check your configuration file");
             }
         }
 
-        // Data for app.config
         public string UserApplication { get; set; }
         public string DomainWebService { get; set; }
         public string UserPwd { get; set; }
@@ -52,7 +51,6 @@ namespace Linxens.Core.Service
         public string WebServiceUrl { get; set; }
         public string WebServiceTimeOut { get; set; }
 
-        //compteur pour nombre de tentatives
         public int AutoRetrySendOnError { get; set; }
 
         public string RootDirPath { get; set; }
@@ -66,7 +64,6 @@ namespace Linxens.Core.Service
 
         public DataFile ReadFile(string fileName)
         {
-            // check if exist
             string todoDir = Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString());
             string fullPath = Path.Combine(todoDir, fileName);
             // Possible si le fichier exist déja dans TODO. Dans le cas d'un import de fichier "on ne peut pas faire un File.Exists dans TODO 
@@ -155,7 +152,7 @@ namespace Linxens.Core.Service
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             File.Move(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(this.RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
-            this._technicalLogger.LogInfo("Send data success", "The data file was moved in ERROR directory");
+            this._technicalLogger.LogError("Send data error", "The data file"+ this.CurrentFile.FilePath +" was moved in ERROR directory");
         }
 
         public void LoadFileToProcess()
