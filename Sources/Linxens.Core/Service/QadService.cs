@@ -25,8 +25,9 @@ namespace Linxens.Core.Service
             this.QadRequest = new xxf2q01Request(ipAuthKey, ipUser, ipDomain, this.QadDataRows.ToArray());
         }
 
-        public bool Send(DataFile dataFile)
+        public bool Send(DataFile dataFile, out string error)
         {
+            error = "";
             bool ret = false;
             string returnStatus = "";
             Stopwatch timer = new Stopwatch();
@@ -120,6 +121,7 @@ namespace Linxens.Core.Service
                     timer.Stop();
                     this._qadLogger.LogError("Prepare data for send", e.Message);
                     this._qadLogger.LogError("Prepare data for send", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
+                    error = e.Message;
                 }
                 else
                 {
@@ -127,11 +129,14 @@ namespace Linxens.Core.Service
                     if (this.QadResponse != null)
                         foreach (xxf2q01_tt_Error_WarningRow xxf2Q01TtErrorWarningRow in this.QadResponse.tt_Error_Warning)
                             if (xxf2Q01TtErrorWarningRow != null)
-                                this._qadLogger.LogError("Send data file to QAD service", "\n" +
-                                                                                          "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                                                          "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
-                                                                                          "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                                                          "[Desc: " + xxf2Q01TtErrorWarningRow.tterr_desc + "]");
+                            {
+                                string errorData = "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
+                                                   "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
+                                                   "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
+                                                   "[Desc: " + xxf2Q01TtErrorWarningRow.tterr_desc + "]";
+                                this._qadLogger.LogError("Send data file to QAD service", "\n" + errorData);
+                                error += errorData + "\n";
+                            }
 
                     this._qadLogger.LogError("Send data file to QAD service", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                 }
