@@ -42,17 +42,6 @@ namespace Linxens.Core.Service
             }
         }
 
-        public string UserApplication { get; set; }
-        public string DomainWebService { get; set; }
-        public string UserPwd { get; set; }
-        public string MachineName { get; set; }
-        public string UserEmail { get; set; }
-        public string PrinterName { get; set; }
-        public string WebServiceUrl { get; set; }
-        public string WebServiceTimeOut { get; set; }
-
-        public int AutoRetrySendOnError { get; set; }
-
         public string RootDirPath { get; set; }
 
         // TODO => write in app.config on var update
@@ -134,7 +123,7 @@ namespace Linxens.Core.Service
             tab.Add("Defect:" + this.CurrentFile.Defect);
             tab.Add("Splices:" + this.CurrentFile.Splices);
             tab.Add("Dates:" + this.CurrentFile.DateTapes);
-            tab.Add("Printers:" + this.CurrentFile.Printer);
+            tab.Add("Printer:" + this.CurrentFile.Printer);
             tab.Add("Number of conform parts:" + this.CurrentFile.NumbOfConfParts);
 
             File.AppendAllLines(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), tab);
@@ -242,6 +231,7 @@ namespace Linxens.Core.Service
                         datafile.LBL = items[1];
                         break;
                     default:
+                        this._technicalLogger.LogError("Read file", "Unrecognized value \"" + items[0] + "\" in the first section of the file");
                         throw new ArgumentException();
                 }
             }
@@ -278,6 +268,7 @@ namespace Linxens.Core.Service
                         });
                         break;
                     default:
+                        this._technicalLogger.LogError("Read file", "Unrecognized value \"" + items[0] + "\" in the scrap list section of the file");
                         throw new ArgumentException();
                 }
             }
@@ -328,31 +319,24 @@ namespace Linxens.Core.Service
                         datafile.TapeN = items[1];
                         break;
                     default:
+                        this._technicalLogger.LogError("Read file", "Unrecognized value \"" + items[0] + "\" in the last section of the file");
                         throw new ArgumentException();
                 }
             }
 
-            float totalScrap = 0f;
+            decimal totalScrap = 0;
             foreach (Quality quality in datafile.Scrap)
             {
                 bool isValid = true;
-                float current;
-                isValid = float.TryParse(quality.Qty, NumberStyles.Float, CultureInfo.InvariantCulture, out current);
+                decimal current;
+                isValid = decimal.TryParse(quality.Qty, NumberStyles.Float, CultureInfo.InvariantCulture, out current);
 
                 if (isValid) totalScrap += current;
             }
 
-            float currentQty = float.Parse(qty, CultureInfo.InvariantCulture);
-            if (totalScrap < 0)
-            {
-                float initial1Qty = currentQty + totalScrap;
-                datafile.InitialQty = initial1Qty.ToString(CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                float initialQty = currentQty - totalScrap;
-                datafile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
-            }
+            decimal currentQty = decimal.Parse(qty, CultureInfo.InvariantCulture);
+            decimal initialQty = currentQty + totalScrap;
+            datafile.InitialQty = initialQty.ToString(CultureInfo.InvariantCulture);
 
             return i;
         }

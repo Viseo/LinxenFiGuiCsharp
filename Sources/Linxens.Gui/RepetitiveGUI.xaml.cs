@@ -126,17 +126,38 @@ namespace Linxens.Gui
                 Thread sendThread = new Thread(() =>
                 {
                     bool res = false;
+                    string error = "";
                     this.DataFileService.WriteFile();
                     for (int i = 1; i <= Attempt; i++)
                     {
                         this._qadLogger.LogInfo("Send file", string.Format("Attempt {0}/{1}", i, Attempt));
-                        res = qadService.Send(this.DataFileService.CurrentFile);
+                        res = qadService.Send(this.DataFileService.CurrentFile, out error);
                         if (res)
                         {
                             break;
                         }
                         this._qadLogger.LogInfo("Send file", string.Format("Sending attempt {0} has failed", i));
                     }
+
+                    if (!res)
+                    {
+                        try
+                        {
+                            string host = config.GetValue("EmailNotificationServer", typeof(string)) as string;
+                            string port = config.GetValue("EmailNotificationPort", typeof(string)) as string;
+                            string from = config.GetValue("EmailNotificationFrom", typeof(string)) as string;
+                            string to = config.GetValue("EmailNotificationTo", typeof(string)) as string;
+                            MailService mailService = new MailService(host, int.Parse(port));
+                            mailService.Send(from, to, "[FiAutoDataEntry] Error on attempt to send data", "Errors => \n\n" + error);
+                        }
+                        catch (Exception e)
+                        {
+                            string innerMessage = "";
+                            if (e.InnerException != null) innerMessage = e.InnerException.Message;
+                            this._technicalLogger.LogError("Send alert mail", e.Message + " " + innerMessage);
+                        }
+                    }
+
                     this.ChangeUiState(true);
                     this.onSendFinished(res);
                 });

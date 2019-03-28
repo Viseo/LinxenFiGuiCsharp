@@ -75,6 +75,7 @@
     <Compile Include="Logger\QadLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Logger\TechnicalLogger.cs" />
+    <Compile Include="Service\MailService.cs" />
     <Compile Include="Service\QadService.cs" />
   </ItemGroup>
   <ItemGroup>
