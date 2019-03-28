@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Linxens.Tests
 {
@@ -6,9 +7,8 @@ namespace Linxens.Tests
     public class DataFileServiceTest
     {
         [TestMethod]
-        public void ReadFileTest()
+        public void TestMethod1()
         {
-            // TODO
         }
     }
 }

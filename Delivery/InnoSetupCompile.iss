@@ -33,7 +33,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Code]
  var
   QadPage: TInputQueryWizardPage;
-  DirectoryPage: TInputDirWizardPage;
+  AlertMailInfoPage: TInputQueryWizardPage;
+  GlobalParam2Page: TInputQueryWizardPage;
+  GlobalParamPage: TInputDirWizardPage;
   ProgressPage: TOutputProgressWizardPage;
 
 function ProductInstalled(): Boolean;
@@ -48,24 +50,46 @@ begin
   
   { QadPage }
     QadPage := CreateInputQueryPage(wpWelcome,
-      'QAD web services', 'What is the QAD web services informations?',
+      'QAD web service', 'What is the QAD web service informations?',
       '');
-    QadPage.Add('QAD Url:', False);
+    QadPage.Add('QAD Werbservice Url:', False);
     QadPage.Add('User:', False);
     QadPage.Add('Domain:', False);
     QadPage.Add('Auth key:', False);
 
+  { OtherInfo }
+    AlertMailInfoPage := CreateInputQueryPage(wpWelcome,
+      'Alert mail parameters', 'What is the alert mail parameters?',
+      '');
+    AlertMailInfoPage.Add('User mail TO (use for errors notifications):', False);
+    AlertMailInfoPage.Add('User mail FROM (use for errors notifications):', False);
+    AlertMailInfoPage.Add('SMTP server:', False);
+    AlertMailInfoPage.Add('SMTP Port:', False);
+
+    AlertMailInfoPage.Values[0] := '';
+    AlertMailInfoPage.Values[1] := 'FiAutoDataEntry@linxens.com';
+    AlertMailInfoPage.Values[2] := 'smtp.linxens.com';
+    AlertMailInfoPage.Values[3] := '25';
+
+  { OtherInfo 2 }
+    GlobalParam2Page := CreateInputQueryPage(wpWelcome,
+      'Global parameters', 'What is the global parameters ?',
+      '');
+    GlobalParam2Page.Add('Password (use to activate data edit):', True);
+    GlobalParam2Page.Add('Number of retry when QAD send error :', False);
+
+    GlobalParam2Page.Values[1] := '2';
+
   { DirectoryPage }
-    DirectoryPage := CreateInputDirPage(wpWelcome,
-      'Working directories', 'Please fill the working directories informations',
+    GlobalParamPage := CreateInputDirPage(wpWelcome,
+      'Global parameters', 'What is the global parameters ?',
       '', False, 'New Folder');
-    DirectoryPage.Add('Root directory (where FI machine put files):');
-    DirectoryPage.Add('Working directory (where this applications save FI files):');
-    DirectoryPage.Add('Logs directory:');
+    GlobalParamPage.Add('Root directory (where FI machine put files):');
+    GlobalParamPage.Add('Working directory (where this application save FI machine files):');
+    GlobalParamPage.Add('Logs directory:');
 
-    DirectoryPage.Values[1] := ExpandConstant('{userappdata}\Data\{#MyAppName}');
-    DirectoryPage.Values[2] := ExpandConstant('{userappdata}\Logs\{#MyAppName}');
-
+    GlobalParamPage.Values[1] := ExpandConstant('{userappdata}\Data\{#MyAppName}');
+    GlobalParamPage.Values[2] := ExpandConstant('{userappdata}\Logs\{#MyAppName}');
 
 end;
 
@@ -81,7 +105,31 @@ begin
   then
       begin
         Result := False;
-      end;
+  end;
+  if(CurPageID = GlobalParam2Page.ID)
+      AND ((GlobalParam2Page.Values[0] = '')
+      OR (GlobalParam2Page.Values[1] = ''))
+  then
+      begin
+        Result := False;
+  end;
+  if(CurPageID = AlertMailInfoPage.ID)
+      AND ((AlertMailInfoPage.Values[0] = '')
+      OR (AlertMailInfoPage.Values[1] = '')
+      OR (AlertMailInfoPage.Values[2] = '')
+      OR (AlertMailInfoPage.Values[3] = ''))
+  then
+      begin
+        Result := False;
+  end;
+  if(CurPageID = GlobalParamPage.ID)
+      AND ((GlobalParamPage.Values[0] = '')
+      OR (GlobalParamPage.Values[1] = '')
+      OR (GlobalParamPage.Values[2] = ''))
+  then
+      begin
+        Result := False;
+  end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -107,7 +155,7 @@ begin
 		
         WizardForm.StatusLabel.Caption := 'Installation...';
 
-        ProgressPage := CreateOutputProgressPage('Installation...','Web application and pool configuration in progress. Please wait.');
+        ProgressPage := CreateOutputProgressPage('Installation...','Application configuration in progress. Please wait.');
 
         ProgressPage.SetText('Registering web application and pool information...', '');
         ProgressPage.SetProgress(0, 0);
@@ -120,9 +168,15 @@ begin
           +'-password:{'+QadPage.Values[3]+'} '
           +'-domain:{'+QadPage.Values[2]+'} '
           +'-qadurl:{'+QadPage.Values[0]+'} '
-          +'-rootdir:{'+DirectoryPage.Values[0]+'} '
-          +'-workdir:{'+DirectoryPage.Values[1]+'} '
-          +'-logdir:{'+DirectoryPage.Values[2]+'} '
+          +'-rootdir:{'+GlobalParamPage.Values[0]+'} '
+          +'-workdir:{'+GlobalParamPage.Values[1]+'} '
+          +'-logdir:{'+GlobalParamPage.Values[2]+'} '
+          +'-autoRetry:{'+GlobalParam2Page.Values[1]+'} '
+          +'-mailTo:{'+AlertMailInfoPage.Values[0]+'} '
+          +'-mailFrom:{'+AlertMailInfoPage.Values[1]+'} '
+          +'-mailServer:{'+AlertMailInfoPage.Values[2]+'} '
+          +'-mailPort:{'+AlertMailInfoPage.Values[3]+'} '
+          +'-editPasswd:{'+GlobalParam2Page.Values[0]+'} '
           +'"' ,
           '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
 

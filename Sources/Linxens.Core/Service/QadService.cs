@@ -23,6 +23,7 @@ namespace Linxens.Core.Service
 
             this.QadDataRows = new List<xxf2q01_tt_golf_dataRow>();
             this.QadRequest = new xxf2q01Request(ipAuthKey, ipUser, ipDomain, this.QadDataRows.ToArray());
+            this._qadLogger.LogInfo("QAD Service init", string.Format("QAD service init with : [User:{0}, Domain:{1}]", ipUser, ipDomain));
         }
 
         public bool Send(DataFile dataFile, out string error)
@@ -116,9 +117,9 @@ namespace Linxens.Core.Service
             }
             catch (Exception e)
             {
+                timer.Stop();
                 if (string.IsNullOrWhiteSpace(returnStatus))
                 {
-                    timer.Stop();
                     this._qadLogger.LogError("Prepare data for send", e.Message);
                     this._qadLogger.LogError("Prepare data for send", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                     error = e.Message;

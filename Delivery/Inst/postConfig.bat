@@ -38,12 +38,20 @@ set -
 setlocal enableDelayedExpansion
 
 SET USER=!-user!
-SET PASSWD=!-password!
+SET QADPASSWD=!-password!
 SET DOMAIN=!-domain!
 SET QADURL=!-qadurl!
+
 SET ROOTDIR=!-rootdir!
 SET WORKDIR=!-workdir!
 SET LOGDIR=!-logdir!
+SET AUTORETRY=!-autoRetry!
+SET EDITPASSWD=!-editPasswd!
+
+SET EMAILTO=!-mailTo!
+SET EMAILFROM=!-mailFrom!
+SET EMAILSRV=!-mailServer!
+SET EMAILPORT=!-mailPort!
 
 ECHO.
 ECHO  -========================================- 
