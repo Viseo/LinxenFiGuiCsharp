@@ -34,6 +34,8 @@ namespace Linxens.Gui
         private readonly Regex Reg1 = new Regex("^[0-9]*$+");
         private readonly Regex Reg2 = new Regex("^[a-zA-Z0-9-]*$");
 
+        private bool fileInfoReadOnly = true;
+
         public RepetitiveGUI()
         {
             this.InitializeComponent();
@@ -49,11 +51,13 @@ namespace Linxens.Gui
             this._technicalLogger.LogInfo("APPLICATION START", "");
             this._qadLogger.LogInfo("APPLICATION START", "");
 
-            this.ChangeUiState(false);
+            
             this.DataFileService = new DataFileService();
             this.gr_result.ItemsSource = this.DataFileService.FilesToProcess;
 
+            //this.ChangeUiState(false);
             this.SelectDatagridRowIfExist();
+            
         }
 
         public DataFileService DataFileService { get; set; }
@@ -171,6 +175,25 @@ namespace Linxens.Gui
         {
             this.Dispatcher.Invoke(new Action(() =>
             {
+                if (this.fileInfoReadOnly)
+                {
+                    this.ChangeFileInfoUIState(false);
+                }
+                else
+                {
+                    this.ChangeFileInfoUIState(state);
+                }
+                this.gr_result.IsEnabled = state;
+                this.btSend.IsEnabled = state;
+                this.btBrowse.IsEnabled = state;
+            }));
+        }
+
+        private void ChangeFileInfoUIState(bool state)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+
                 this.tb_site.IsEnabled = state;
                 this.tb_emp.IsEnabled = state;
                 this.tb_trtype.IsEnabled = state;
@@ -187,14 +210,14 @@ namespace Linxens.Gui
                 this.tb_numbofconfparts.IsEnabled = state;
                 this.tb_tapeN.IsEnabled = state;
 
-                this.gr_result.IsEnabled = state;
                 this.gr_scraps.IsEnabled = state;
-
                 this.btRemove.IsEnabled = state;
                 this.btAdd.IsEnabled = state;
-                this.btSend.IsEnabled = state;
+                
             }));
         }
+
+
 
         private void RemoveScrap(object sender, RoutedEventArgs e)
         {
@@ -225,7 +248,7 @@ namespace Linxens.Gui
                             i++;
                             this._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} for a file {1} is deleted successfully", i, itm));
                         }
-                        
+
                     }
                     this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
                     this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
@@ -345,7 +368,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.Splices = int.Parse(this.tb_splice.Text);
-                        _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of spice to {0}", this.DataFileService.CurrentFile.Splices));
+                    _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of spice to {0}", this.DataFileService.CurrentFile.Splices));
                 }
                 catch (InvalidCastException x)
                 {
@@ -452,7 +475,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.OP = int.Parse(this.tb_op.Text);
-                        _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of OP to {0}", this.DataFileService.CurrentFile.OP));
+                    _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of OP to {0}", this.DataFileService.CurrentFile.OP));
                 }
                 catch (InvalidCastException x)
                 {
@@ -475,10 +498,11 @@ namespace Linxens.Gui
 
         private void Tb_mhc_KeyUp(object sender, KeyEventArgs e)
         {
-            if (this.Reg2.IsMatch(this.tb_mhc.Text)) { 
+            if (this.Reg2.IsMatch(this.tb_mhc.Text))
+            {
                 this.DataFileService.CurrentFile.MCH = this.tb_mhc.Text;
-            _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of MCH to {0}", this.DataFileService.CurrentFile.MCH));
-        }
+                _technicalLogger.LogInfo("Change value", string.Format("You have changed the value of MCH to {0}", this.DataFileService.CurrentFile.MCH));
+            }
             else
                 this.tb_mhc.Text = this.DataFileService.CurrentFile.MCH;
         }
@@ -543,6 +567,35 @@ namespace Linxens.Gui
                 this._technicalLogger.LogError("Import File", "This File is not a valid FI Station");
                 ex.ToString();
             }
+        }
+
+        private void EditPassWord(object sender, RoutedEventArgs e)
+        {
+
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                AppSettingsReader config = new AppSettingsReader();
+                string Password = config.GetValue("Password", typeof(string)) as string;
+
+                var dialog = new PasswordConfirm();
+                if (dialog.ShowDialog() == true)
+                {
+                    string pwd = dialog.PasswordResponse;
+                    if (Password.ToString() == pwd)
+                    {
+                        this.fileInfoReadOnly = false;
+                        ChangeUiState(true);
+                        edit.IsEnabled = false;
+                    }
+                    else
+                    {
+                        ChangeUiState(false);
+                        this.gr_result.IsEnabled = true;
+                        MessageBox.Show("This password is not valide", "Password error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }), DispatcherPriority.ContextIdle, null);
+
         }
     }
 }

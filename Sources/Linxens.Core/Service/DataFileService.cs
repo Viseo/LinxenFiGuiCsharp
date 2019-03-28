@@ -145,14 +145,14 @@ namespace Linxens.Core.Service
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             File.Move(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(this.RootWorkingPath, WorkingType.DONE.ToString(), "RunningReelSuccess_" + date + ".txt"));
             File.Delete(Path.Combine(this.RootWorkingPath, WorkingType.TODO.ToString(), this.CurrentFile.FilePath));
-            this._technicalLogger.LogInfo("Send data success", this.CurrentFile.FilePath + "moved in DONE directory");
+            this._technicalLogger.LogInfo("Send data", this.CurrentFile.FilePath + "moved in DONE directory");
         }
 
         public void ErrorFile()
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             File.Move(Path.Combine(this.RootWorkingPath, WorkingType.RUNNING.ToString(), "runningFile.txt"), Path.Combine(this.RootWorkingPath, WorkingType.ERROR.ToString(), "RunningReelERROR_" + date + ".txt"));
-            this._technicalLogger.LogError("Send data error", "The data file"+ this.CurrentFile.FilePath +" was moved in ERROR directory");
+            this._technicalLogger.LogError("Send data", "The data file"+ this.CurrentFile.FilePath +" was moved in ERROR directory");
         }
 
         public void LoadFileToProcess()

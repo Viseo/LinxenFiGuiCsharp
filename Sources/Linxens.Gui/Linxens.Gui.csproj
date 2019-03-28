@@ -77,6 +77,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="PasswordConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="RepetitiveGUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -85,6 +89,9 @@
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PasswordConfirm.xaml.cs">
+      <DependentUpon>PasswordConfirm.xaml</DependentUpon>
     </Compile>
     <Compile Include="RepetitiveGUI.xaml.cs">
       <DependentUpon>RepetitiveGUI.xaml</DependentUpon>
