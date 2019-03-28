@@ -67,7 +67,7 @@
             </DataGrid.Columns>
             <DataGrid.ItemContainerStyle>
                 <Style TargetType="DataGridRow">
-                    <EventSetter Event="MouseLeftButtonDown" Handler="DataGridRow_MouseDoubleClick" />
+                    <EventSetter Event="MouseLeftButtonUp" Handler="DataGridRow_MouseDoubleClick" />
                 </Style>
             </DataGrid.ItemContainerStyle>
         </DataGrid>
@@ -75,10 +75,6 @@
                FontWeight="Bold" RenderTransformOrigin="-0.673,0.577" />
         <DataGrid x:Name="gr_scraps" HorizontalAlignment="Left" Height="115" VerticalAlignment="Top" Width="445"
                   Margin="355,360,0,0" Background="Transparent" AutoGenerateColumns="True" ItemsSource="{Binding DataFileService.CurrentFile.Scrap, BindsDirectlyToSource=True, Mode=TwoWay, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}" CanUserAddRows="False" LostFocus="Gr_scraps_LostFocus">
-            <!--<DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding}"
-                                    Foreground="Black" Width="300" IsReadOnly="False" />
-            </DataGrid.Columns>-->
             <DataGrid.ItemContainerStyle>
                 <Style TargetType="DataGridRow" >
 

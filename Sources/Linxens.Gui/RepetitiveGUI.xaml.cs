@@ -230,34 +230,26 @@ namespace Linxens.Gui
         private void RemoveScrap(object sender, RoutedEventArgs e)
         {
             int i = 0;
-            List<Quality> test = this.DataFileService.CurrentFile.Scrap;
-            int ItemsSelected = this.gr_scraps.SelectedItems.Count;
+            List<Quality> ListScrap = this.DataFileService.CurrentFile.Scrap;
+            Quality qtySelected = this.gr_scraps.SelectedItem as Quality;
             if (this.gr_result.SelectedItem == null)
             {
                 MessageBox.Show("Select a file!");
-                this._technicalLogger.LogInfo("Select File", "You dont have selected a file on the file list. This action can only be performed if you have selected a file in the file list and a Scrap belonging to this file");
+                this._technicalLogger.LogInfo("Select File", "You don't have selected a file on the file list. This action can only be performed if you have selected a file in the file list and a Scrap belonging to this file");
             }
             else if (this.gr_scraps.SelectedItem == null)
             {
                 MessageBox.Show("select a scrap to delete it!");
-                this._technicalLogger.LogInfo("Select Scrap", "You dont have selected a scrap. The removal of a Scrap follows the selection of it");
+                this._technicalLogger.LogInfo("Select Scrap", "You don't have selected a scrap. The removal of a Scrap follows the selection of it");
             }
             else
             {
                 MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
-                if (test != null)
+                if (messageBoxResult == MessageBoxResult.Yes)
                 {
-                    while (i < ItemsSelected)
-                    {
-                        Quality itm = this.gr_scraps.SelectedItems[i] as Quality;
-                        if (itm != null)
-                        {
-                            if (messageBoxResult == MessageBoxResult.Yes) test.Remove(itm);
-                            i++;
-                            this._technicalLogger.LogInfo("Delete Scrap", string.Format("Line Scrap number {0} for a file {1} is deleted successfully", i, itm));
-                        }
-                    }
-
+                    int index = ListScrap.IndexOf(qtySelected);
+                    ListScrap.RemoveAt(index);
+                    this._technicalLogger.LogInfo("Delete Scrap", string.Format("Qty:  {0} Rsn Code:  {1} is deleted successfully", qtySelected.Qty, qtySelected.RsnCode));
                     this.tb_qty.Text = this.DataFileService.CurrentFile.Qty;
                     this.gr_scraps.ItemsSource = this.DataFileService.CurrentFile.Scrap.ToArray();
                 }
@@ -374,7 +366,7 @@ namespace Linxens.Gui
 
                     else
                         this.DataFileService.CurrentFile.Splices = int.Parse(this.tb_splice.Text);
-                    this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of spice to {0}", this.DataFileService.CurrentFile.Splices));
+                    this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Splice to {0}", this.DataFileService.CurrentFile.Splices));
                 }
                 catch (InvalidCastException x)
                 {
@@ -534,7 +526,7 @@ namespace Linxens.Gui
             if (this.Reg1.IsMatch(this.tb_numbofconfparts.Text))
             {
                 this.DataFileService.CurrentFile.NumbOfConfParts = this.tb_numbofconfparts.Text;
-                this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Number of conf parts to {0}", this.DataFileService.CurrentFile.NumbOfConfParts));
+                this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Number of conform parts to {0}", this.DataFileService.CurrentFile.NumbOfConfParts));
             }
             else
             {
@@ -560,7 +552,7 @@ namespace Linxens.Gui
             if (this.Reg2.IsMatch(this.tb_tapeN.Text))
             {
                 this.DataFileService.CurrentFile.TapeN = this.tb_tapeN.Text;
-                this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of WC to {0}", this.DataFileService.CurrentFile.WC));
+                this._technicalLogger.LogInfo("Change value", string.Format("You have changed the value of Tape# to {0}", this.DataFileService.CurrentFile.TapeN));
             }
             else
             {

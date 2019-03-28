@@ -1,6 +1,6 @@
 #define MyAppID "{FIAutoDataEntry}"
 #define MyAppName "FIAutoDataEntry"
-#define MyAppVersion "1.0.1.0"
+#define MyAppVersion "1.0.2.0"
 #define MyAppPublisher "Viseo Technologies"
 #define MyAppExeName "Linxens.Gui.exe"
 
@@ -21,8 +21,8 @@ SolidCompression=yes
 
 [Files]
 Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Gui.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Sources\Linxens.Gui\bin\x86\Release\Linxens.Gui.exe.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\FiAutoDataEntry.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Sources\Linxens.Gui\bin\x86\Release\FiAutoDataEntry.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\Sources\Linxens.Gui\bin\x86\Release\app.Release.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\Inst\postConfig.bat"; DestDir: "{app}\Inst"; Flags: ignoreversion
 Source: ".\Inst\replenv.exe"; DestDir: "{app}\Inst"; Flags: ignoreversion

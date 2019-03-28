@@ -58,7 +58,7 @@ ECHO  -========================================-
 ECHO     Instanciation des fichiers .config
 ECHO  -========================================- 
 attrib -r "..\app.Release.config"
-replenv.exe "..\app.Release.config" "..\Linxens.Gui.exe.config"
+replenv.exe "..\app.Release.config" "..\FiAutoDataEntry.exe.config"
 del -f "..\app.Release.config"
 
 REM attrib -r "%INSTDIR%\Linxens.Core.config"
