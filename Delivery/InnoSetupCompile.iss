@@ -1,8 +1,8 @@
 #define MyAppID "{FIAutoDataEntry}"
 #define MyAppName "FIAutoDataEntry"
-#define MyAppVersion "1.0.2.0"
+#define MyAppVersion "1.0.3.0"
 #define MyAppPublisher "Viseo Technologies"
-#define MyAppExeName "Linxens.Gui.exe"
+#define MyAppExeName "FiAutoDataEntry.exe"
 
 [Setup]
 AppId={{85A7E014-8C9E-41A1-8EEA-EBA59286F992}
@@ -77,8 +77,10 @@ begin
       '');
     GlobalParam2Page.Add('Password (use to activate data edit):', True);
     GlobalParam2Page.Add('Number of retry when QAD send error :', False);
+    GlobalParam2Page.Add('QAD Timeout (in minutes):', False);
 
     GlobalParam2Page.Values[1] := '2';
+    GlobalParam2Page.Values[2] := '10';
 
   { DirectoryPage }
     GlobalParamPage := CreateInputDirPage(wpWelcome,
@@ -177,6 +179,7 @@ begin
           +'-mailServer:{'+AlertMailInfoPage.Values[2]+'} '
           +'-mailPort:{'+AlertMailInfoPage.Values[3]+'} '
           +'-editPasswd:{'+GlobalParam2Page.Values[0]+'} '
+          +'-timeOut:{'+GlobalParam2Page.Values[2]+'} '
           +'"' ,
           '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
 

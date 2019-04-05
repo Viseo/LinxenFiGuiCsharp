@@ -41,6 +41,7 @@ SET USER=!-user!
 SET QADPASSWD=!-password!
 SET DOMAIN=!-domain!
 SET QADURL=!-qadurl!
+SET TIMEOUT=!-timeOut!
 
 SET ROOTDIR=!-rootdir!
 SET WORKDIR=!-workdir!
