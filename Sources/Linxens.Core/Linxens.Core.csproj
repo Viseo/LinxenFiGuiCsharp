@@ -65,6 +65,11 @@
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="Logger\LoggerEnum.cs" />
     <Compile Include="Model\DataFile.cs" />
+    <Compile Include="Service References\QADServicesV2\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\QADServices\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -82,6 +87,11 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Service References\QADServicesV2\golfRepetitive-CUST_1.wsdl" />
+    <None Include="Service References\QADServicesV2\Linxens.Core.QADServicesV2.WSDLGolfRepetitiveResponseType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Service References\QADServices\Linxens.Core.QADServices.xxf2q01_tt_Error_WarningRow.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -91,6 +101,7 @@
     <None Include="Service References\QADServices\MES2QAD_AS.wsdl" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\QADServicesV2\" />
     <WCFMetadataStorage Include="Service References\QADServices\" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +112,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\QADServices\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\QADServicesV2\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\QADServicesV2\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\QADServicesV2\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

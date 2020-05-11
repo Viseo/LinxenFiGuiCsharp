@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:qcom="urn:schemas-qad-com:xml-services:common" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:qsvc="urn:schemas-qad-com:xml-services" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001" targetNamespace="urn:schemas-qad-com:xml-services" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="urn:schemas-qad-com:xml-services:common">
+      <xsd:element name="suppressResponseDetail" type="xsd:boolean" />
+      <xsd:element name="dsSessionContext" type="qcom:DsSessionContext" />
+      <xsd:element name="dsExceptions" type="qcom:DsExceptions" />
+      <xsd:complexType name="Temp_err_msg">
+        <xsd:sequence>
+          <xsd:element name="tt_level" nillable="true" type="xsd:int" />
+          <xsd:element name="tt_msg_context" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_data" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_datetime" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_desc" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_field" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_index" nillable="true" type="xsd:int" />
+          <xsd:element maxOccurs="6" name="tt_msg_keys" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_nbr" nillable="true" type="xsd:string" />
+          <xsd:element name="tt_msg_processed" nillable="true" type="xsd:boolean" />
+          <xsd:element name="tt_msg_sev" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="TtContext">
+        <xsd:sequence>
+          <xsd:element name="propertyQualifier" nillable="true" type="xsd:string" />
+          <xsd:element name="propertyName" nillable="true" type="xsd:string" />
+          <xsd:element name="propertyValue" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="DsExceptions">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="temp_err_msg" type="qcom:Temp_err_msg" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="DsSessionContext">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="ttContext" type="qcom:TtContext" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://www.w3.org/2005/08/addressing">
+      <xsd:import namespace="urn:schemas-qad-com:xml-services:common" />
+      <xsd:element name="Action" type="wsa:ActionType" />
+      <xsd:element name="To" type="wsa:ToType" />
+      <xsd:element name="RelatesTo" type="wsa:RelatesToType" />
+      <xsd:element name="MessageID" type="wsa:MessageIDType" />
+      <xsd:element name="ReferenceParameters" type="wsa:ReferenceParametersType" />
+      <xsd:element name="ReplyTo" type="wsa:ReplyToType" />
+      <xsd:simpleType name="ActionType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:simpleType name="ToType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:simpleType name="RelatesToType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:simpleType name="MessageIDType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:complexType name="ReferenceParametersType">
+        <xsd:sequence>
+          <xsd:element ref="qcom:suppressResponseDetail" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ReplyToType">
+        <xsd:sequence>
+          <xsd:element name="Address" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+    <xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="urn:schemas-qad-com:xml-services">
+      <xsd:import namespace="urn:schemas-qad-com:xml-services:common" />
+      <xsd:complexType name="Tt_GolfDataType">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_srno" nillable="true" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_emp" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_tr_type" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_line" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_part" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_op" nillable="true" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_wc" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_mch" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_lbl" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_t_lbl" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_qty" nillable="true" type="xsd:decimal" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_rsn" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_defects" nillable="true" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_splices" nillable="true" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_p_date" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_printer" nillable="true" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="tt_shipto" nillable="true" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="golfRepetitive" type="qsvc:WSDLGolfRepetitiveType" />
+      <xsd:element name="golfRepetitiveResponse" type="qsvc:WSDLGolfRepetitiveResponseType" />
+      <xsd:complexType name="WSDLGolfRepetitiveType">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" ref="qcom:dsSessionContext" />
+          <xsd:element minOccurs="1" maxOccurs="1" name="dsGolfRepetitive">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="tt_GolfData" type="qsvc:Tt_GolfDataType" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="WSDLGolfRepetitiveResponseType">
+        <xsd:sequence>
+          <xsd:element name="result" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" ref="qcom:dsSessionContext" />
+          <xsd:element minOccurs="0" maxOccurs="1" ref="qcom:dsExceptions" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="processGolfRepetitiveRequest">
+    <wsdl:part name="action" element="wsa:Action" />
+    <wsdl:part name="to" element="wsa:To" />
+    <wsdl:part name="messageID" element="wsa:MessageID" />
+    <wsdl:part name="referenceParameters" element="wsa:ReferenceParameters" />
+    <wsdl:part name="replyTo" element="wsa:ReplyTo" />
+    <wsdl:part name="body" element="qsvc:golfRepetitive" />
+  </wsdl:message>
+  <wsdl:message name="processGolfRepetitiveResponse">
+    <wsdl:part name="to" element="wsa:To" />
+    <wsdl:part name="action" element="wsa:Action" />
+    <wsdl:part name="messageID" element="wsa:MessageID" />
+    <wsdl:part name="relatesTo" element="wsa:RelatesTo" />
+    <wsdl:part name="body" element="qsvc:golfRepetitiveResponse" />
+  </wsdl:message>
+  <wsdl:portType name="QdocWebService">
+    <wsdl:operation name="golfRepetitive">
+      <wsdl:input name="processGolfRepetitiveRequest" message="qsvc:processGolfRepetitiveRequest" />
+      <wsdl:output name="processGolfRepetitiveResponse" message="qsvc:processGolfRepetitiveResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SoapBinding" type="qsvc:QdocWebService">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="golfRepetitive">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="processGolfRepetitiveRequest">
+        <wsdlsoap:body use="literal" parts="body" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveRequest" part="action" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveRequest" part="to" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveRequest" part="messageID" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveRequest" part="referenceParameters" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveRequest" part="replyTo" use="literal" />
+      </wsdl:input>
+      <wsdl:output name="processGolfRepetitiveResponse">
+        <wsdlsoap:body use="literal" parts="body" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveResponse" part="to" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveResponse" part="action" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveResponse" part="messageID" use="literal" />
+        <wsdlsoap:header message="qsvc:processGolfRepetitiveResponse" part="relatesTo" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="QdocWebService">
+    <wsdl:port name="QdocWebService" binding="qsvc:SoapBinding">
+      <wsdlsoap:address location="https://qssilholdb08.qad.com:8143/qxiqonddb/services/QdocWebService" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
