@@ -6,24 +6,55 @@ using System.Runtime.Remoting;
 using System.Threading;
 using Linxens.Core.Logger;
 using Linxens.Core.Model;
+using Linxens.Core.QADServicesV2;
 using Linxens.Core.QADServices;
+using System.Linq;
 
 namespace Linxens.Core.Service
 {
     public class QadService
     {
         private readonly QadLogger _qadLogger;
-        private readonly List<xxf2q01_tt_golf_dataRow> QadDataRows;
-        private readonly xxf2q01Request QadRequest;
-        private xxf2q01Response QadResponse;
-
+        private readonly List<Tt_GolfDataType> QadDataRows;
+        private readonly processGolfRepetitiveRequest QadRequest;
+        
+        private processGolfRepetitiveResponse QadResponse;
+        //private readonly Temp_err_msg[] err = QadResponse.golfRepetitiveResponse.dsExceptions;
         public QadService(string ipAuthKey, string ipUser, string ipDomain)
         {
+            TtContext context1 = new TtContext();
+            context1.propertyQualifier = "QAD";
+            context1.propertyName = "domain";
+            context1.propertyValue = "4327";
+
+            TtContext context2 = new TtContext();
+            context2.propertyQualifier = "QAD";
+            context2.propertyName = "version";
+            context2.propertyValue = "CUST_1";
+
+            TtContext context3 = new TtContext();
+            context3.propertyQualifier = "QAD";
+            context3.propertyName = "Operation";
+            context3.propertyValue = "FI2QAD";
+
+            TtContext[] contexts = new TtContext[] { context1, context2, context3 };
+
+            this.QadRequest = new processGolfRepetitiveRequest();
+            this.QadRequest.golfRepetitive = new WSDLGolfRepetitiveType();
+            this.QadRequest.To = "urn:services-qad-com::QADERP";
+            this.QadRequest.MessageID = "urn:services-qad-com::QADERP";
+            this.QadRequest.ReferenceParameters.suppressResponseDetail = true;
+            this.QadRequest.ReplyTo.Address = "urn:services-qad-com:";
             this._qadLogger = QadLogger.Instance;
 
-            this.QadDataRows = new List<xxf2q01_tt_golf_dataRow>();
-            this.QadRequest = new xxf2q01Request(ipAuthKey, ipUser, ipDomain, this.QadDataRows.ToArray());
+            this.QadDataRows = new List<Tt_GolfDataType>();
+            //this.QadRequest = new xxf2q01Request(ipAuthKey, ipUser, ipDomain, this.QadDataRows.ToArray());
+            this.QadRequest.golfRepetitive.dsSessionContext = contexts;
+
+            //TODO: Si 
             this._qadLogger.LogInfo("QAD Service init", string.Format("QAD service init with : [User:{0}, Domain:{1}]", ipUser, ipDomain));
+
+         
         }
 
         public bool Send(DataFile dataFile, out string error)
@@ -35,7 +66,7 @@ namespace Linxens.Core.Service
             this._qadLogger.LogInfo("Send data file to QAD service", "QAD service start...");
             try
             {
-                MES2QAD_ASObj clientAsObj = new MES2QAD_ASObjClient("MES2QAD_ASObj");
+                QdocWebService qdocWebService = new QdocWebServiceClient("QdocWebService");
 
                 // Register WR-SCRAP Datas
                 int scrapNbr = 1;
@@ -43,22 +74,22 @@ namespace Linxens.Core.Service
                 timer.Start();
                 foreach (Quality quality in dataFile.Scrap)
                 {
-                    xxf2q01_tt_golf_dataRow currentScrap = new xxf2q01_tt_golf_dataRow();
+                    Tt_GolfDataType currentScrap = new Tt_GolfDataType();
 
-                    currentScrap.ip_srno = scrapNbr;
-                    currentScrap.ip_emp = dataFile.Emp;
-                    currentScrap.ip_tr_type = dataFile.TrType;
-                    currentScrap.ip_line = dataFile.Line;
-                    currentScrap.ip_part = dataFile.PN;
-                    currentScrap.ip_op = dataFile.OP;
-                    currentScrap.ip_wc = dataFile.WC;
-                    currentScrap.ip_mch = dataFile.MCH;
-                    currentScrap.ip_lbl = dataFile.LBL;
-                    currentScrap.ip_t_lbl = dataFile.TapeN;
-                    currentScrap.ip_qty = decimal.Parse(quality.Qty, CultureInfo.InvariantCulture);
-                    currentScrap.ip_rsn = quality.RsnCode;
-                    currentScrap.ip_defects = 0;
-                    currentScrap.ip_splices = 0;
+                    currentScrap.tt_srno = scrapNbr;
+                    currentScrap.tt_emp = dataFile.Emp;
+                    currentScrap.tt_tr_type = dataFile.TrType;
+                    currentScrap.tt_line = dataFile.Line;
+                    currentScrap.tt_part = dataFile.PN;
+                    currentScrap.tt_op = dataFile.OP;
+                    currentScrap.tt_wc = dataFile.WC;
+                    currentScrap.tt_mch = dataFile.MCH;
+                    currentScrap.tt_lbl = dataFile.LBL;
+                    currentScrap.tt_t_lbl = dataFile.TapeN;
+                    currentScrap.tt_qty = decimal.Parse(quality.Qty, CultureInfo.InvariantCulture);
+                    currentScrap.tt_rsn = quality.RsnCode;
+                    currentScrap.tt_defects = 0;
+                    currentScrap.tt_splices = 0;
 
                     this.QadDataRows.Add(currentScrap);
                     scrapNbr++;
@@ -70,24 +101,24 @@ namespace Linxens.Core.Service
                 timer.Reset();
 
                 timer.Start();
-                xxf2q01_tt_golf_dataRow prodData = new xxf2q01_tt_golf_dataRow();
-                prodData.ip_srno = scrapNbr;
-                prodData.ip_emp = dataFile.Emp;
-                prodData.ip_tr_type = "WR-BF-PROD";
-                prodData.ip_line = dataFile.Line;
-                prodData.ip_part = dataFile.PN;
-                prodData.ip_op = dataFile.OP;
-                prodData.ip_wc = dataFile.WC;
-                prodData.ip_mch = dataFile.MCH;
-                prodData.ip_lbl = dataFile.LBL;
-                prodData.ip_t_lbl = dataFile.TapeN;
-                prodData.ip_qty = decimal.Parse(dataFile.Qty, CultureInfo.InvariantCulture);
-                prodData.ip_rsn = "";
-                prodData.ip_defects = dataFile.Defect;
-                prodData.ip_splices = dataFile.Splices;
-                prodData.ip_p_date = dataFile.DateTapes;
-                prodData.ip_printer = dataFile.Printer;
-                prodData.ip_shipto = "Dummy";
+                Tt_GolfDataType prodData = new Tt_GolfDataType();
+                prodData.tt_srno = scrapNbr;
+                prodData.tt_emp = dataFile.Emp;
+                prodData.tt_tr_type = "WR-BF-PROD";
+                prodData.tt_line = dataFile.Line;
+                prodData.tt_part = dataFile.PN;
+                prodData.tt_op = dataFile.OP;
+                prodData.tt_wc = dataFile.WC;
+                prodData.tt_mch = dataFile.MCH;
+                prodData.tt_lbl = dataFile.LBL;
+                prodData.tt_t_lbl = dataFile.TapeN;
+                prodData.tt_qty = decimal.Parse(dataFile.Qty, CultureInfo.InvariantCulture);
+                prodData.tt_rsn = "";
+                prodData.tt_defects = dataFile.Defect;
+                prodData.tt_splices = dataFile.Splices;
+                prodData.tt_p_date = dataFile.DateTapes;
+                prodData.tt_printer = dataFile.Printer;
+                prodData.tt_shipto = "Dummy";
                 this.QadDataRows.Add(prodData);
 
                 timer.Stop();
@@ -99,12 +130,12 @@ namespace Linxens.Core.Service
 
                 try
                 {
-                    this.QadRequest.tt_golf_data = this.QadDataRows.ToArray();
+                    this.QadRequest.golfRepetitive.dsGolfRepetitive = this.QadDataRows.ToArray();
                     timer.Start();
-                    this.QadResponse = clientAsObj.xxf2q01(this.QadRequest);
+                    this.QadResponse = qdocWebService.golfRepetitive(this.QadRequest);
                     timer.Stop();
-                    returnStatus = this.QadResponse.op_ReturnStatus;
-                    if (returnStatus != "ok") throw new ServerException();
+                    returnStatus = this.QadResponse.golfRepetitiveResponse.result;
+                    if (returnStatus != "success") throw new ServerException();
                     this._qadLogger.LogInfo("Send", "SUCESS");
                     this._qadLogger.LogInfo("Send", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                     ret = true;
@@ -127,18 +158,18 @@ namespace Linxens.Core.Service
                 else
                 {
                     this._qadLogger.LogError("Send data file to QAD service", e.Message);
-                    if (this.QadResponse != null)
-                        foreach (xxf2q01_tt_Error_WarningRow xxf2Q01TtErrorWarningRow in this.QadResponse.tt_Error_Warning)
-                            if (xxf2Q01TtErrorWarningRow != null)
-                            {
-                                string errorData = "[Status: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                   "[Type: " + xxf2Q01TtErrorWarningRow.tterr_type + "]\n" +
-                                                   "[Code: " + xxf2Q01TtErrorWarningRow.tterr_code + "]\n" +
-                                                   "[Desc: " + xxf2Q01TtErrorWarningRow.tterr_desc + "]";
-                                this._qadLogger.LogError("Send data file to QAD service", "\n" + errorData);
-                                error += errorData + "\n";
-                            }
 
+                    if (this.QadResponse != null)
+                    {
+                        var tempErrorMsg = QadResponse.golfRepetitiveResponse.dsExceptions.FirstOrDefault();
+
+                         if (tempErrorMsg != null)
+                         {
+                             string errorData = "[Desc: " + tempErrorMsg.tt_msg_desc + "]";
+                             this._qadLogger.LogError("Send data file to QAD service", "\n" + errorData);
+                             error += errorData + "\n";
+                         }
+                    }
                     this._qadLogger.LogError("Send data file to QAD service", "Elapsed time : " + timer.Elapsed.Seconds + "sec");
                 }
 
