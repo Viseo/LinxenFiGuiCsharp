@@ -43,7 +43,9 @@ namespace Linxens.Core.Service
             this.QadRequest.golfRepetitive = new WSDLGolfRepetitiveType();
             this.QadRequest.To = "urn:services-qad-com::QADERP";
             this.QadRequest.MessageID = "urn:services-qad-com::QADERP";
+            this.QadRequest.ReferenceParameters = new ReferenceParametersType();
             this.QadRequest.ReferenceParameters.suppressResponseDetail = true;
+            this.QadRequest.ReplyTo = new ReplyToType();
             this.QadRequest.ReplyTo.Address = "urn:services-qad-com:";
             this._qadLogger = QadLogger.Instance;
 

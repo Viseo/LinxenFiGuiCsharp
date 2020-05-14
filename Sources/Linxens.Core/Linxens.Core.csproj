@@ -87,7 +87,6 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Service References\QADServicesV2\golfRepetitive-CUST_1.wsdl" />
     <None Include="Service References\QADServicesV2\Linxens.Core.QADServicesV2.WSDLGolfRepetitiveResponseType.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
