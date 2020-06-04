@@ -47,6 +47,7 @@ namespace Linxens.Core.Service
             this.QadRequest.ReferenceParameters.suppressResponseDetail = true;
             this.QadRequest.ReplyTo = new ReplyToType();
             this.QadRequest.ReplyTo.Address = "urn:services-qad-com:";
+
             this._qadLogger = QadLogger.Instance;
 
             this.QadDataRows = new List<Tt_GolfDataType>();
@@ -105,22 +106,27 @@ namespace Linxens.Core.Service
                 timer.Start();
                 Tt_GolfDataType prodData = new Tt_GolfDataType();
                 prodData.tt_srno = scrapNbr;
+                prodData.tt_srnoSpecified = true;
                 prodData.tt_emp = dataFile.Emp;
                 prodData.tt_tr_type = "WR-BF-PROD";
                 prodData.tt_line = dataFile.Line;
                 prodData.tt_part = dataFile.PN;
                 prodData.tt_op = dataFile.OP;
+                prodData.tt_opSpecified = true;
                 prodData.tt_wc = dataFile.WC;
                 prodData.tt_mch = dataFile.MCH;
                 prodData.tt_lbl = dataFile.LBL;
                 prodData.tt_t_lbl = dataFile.TapeN;
                 prodData.tt_qty = decimal.Parse(dataFile.Qty, CultureInfo.InvariantCulture);
+                prodData.tt_qtySpecified = true;
                 prodData.tt_rsn = "";
                 prodData.tt_defects = dataFile.Defect;
+                prodData.tt_defectsSpecified = true;
                 prodData.tt_splices = dataFile.Splices;
+                prodData.tt_splicesSpecified = true;
                 prodData.tt_p_date = dataFile.DateTapes;
                 prodData.tt_printer = dataFile.Printer;
-                prodData.tt_shipto = "Dummy";
+                prodData.tt_shipto = "";
                 this.QadDataRows.Add(prodData);
 
                 timer.Stop();
