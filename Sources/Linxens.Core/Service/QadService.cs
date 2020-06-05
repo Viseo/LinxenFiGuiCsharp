@@ -80,16 +80,19 @@ namespace Linxens.Core.Service
                     Tt_GolfDataType currentScrap = new Tt_GolfDataType();
 
                     currentScrap.tt_srno = scrapNbr;
+                    currentScrap.tt_srnoSpecified = true;
                     currentScrap.tt_emp = dataFile.Emp;
                     currentScrap.tt_tr_type = dataFile.TrType;
                     currentScrap.tt_line = dataFile.Line;
                     currentScrap.tt_part = dataFile.PN;
                     currentScrap.tt_op = dataFile.OP;
+                    currentScrap.tt_opSpecified = true;
                     currentScrap.tt_wc = dataFile.WC;
                     currentScrap.tt_mch = dataFile.MCH;
                     currentScrap.tt_lbl = dataFile.LBL;
                     currentScrap.tt_t_lbl = dataFile.TapeN;
                     currentScrap.tt_qty = decimal.Parse(quality.Qty, CultureInfo.InvariantCulture);
+                    currentScrap.tt_qtySpecified = true;
                     currentScrap.tt_rsn = quality.RsnCode;
                     currentScrap.tt_defects = 0;
                     currentScrap.tt_splices = 0;
