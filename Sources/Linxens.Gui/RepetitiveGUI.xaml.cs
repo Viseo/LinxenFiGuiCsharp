@@ -121,10 +121,8 @@ namespace Linxens.Gui
                 this.Statut.Text = "SENDING";
 
                 AppSettingsReader config = new AppSettingsReader();
-                string User = config.GetValue("User", typeof(string)) as string;
                 string Domain = config.GetValue("Domain", typeof(string)) as string;
-                string Password = config.GetValue("Password", typeof(string)) as string;
-                QadService qadService = new QadService(Password, User, Domain);
+                QadService qadService = new QadService(Domain);
 
                 int Attempt = int.Parse(config.GetValue("AutoRetrySendOnError", typeof(string)) as string);
 

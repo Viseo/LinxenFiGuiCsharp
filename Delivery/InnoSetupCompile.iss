@@ -1,6 +1,6 @@
 #define MyAppID "{FIAutoDataEntry}"
 #define MyAppName "FIAutoDataEntry"
-#define MyAppVersion "1.0.3.0"
+#define MyAppVersion "1.0.4.0"
 #define MyAppPublisher "Viseo Technologies"
 #define MyAppExeName "FiAutoDataEntry.exe"
 
@@ -53,9 +53,7 @@ begin
       'QAD web service', 'What is the QAD web service informations?',
       '');
     QadPage.Add('QAD Werbservice Url:', False);
-    QadPage.Add('User:', False);
     QadPage.Add('Domain:', False);
-    QadPage.Add('Auth key:', False);
 
   { OtherInfo }
     AlertMailInfoPage := CreateInputQueryPage(wpWelcome,
@@ -101,9 +99,7 @@ begin
   Result := True;
   if(CurPageID = QadPage.ID)
       AND ((QadPage.Values[0] = '')
-      OR (QadPage.Values[1] = '')
-      OR (QadPage.Values[2] = '')
-      OR (QadPage.Values[3] = ''))
+      OR (QadPage.Values[1] = ''))
   then
       begin
         Result := False;
@@ -166,9 +162,7 @@ begin
         //try
           		  
           Exec(ExpandConstant('{app}')+'\Inst\postConfig.bat ',
-          '"-user:{'+QadPage.Values[1]+'} '
-          +'-password:{'+QadPage.Values[3]+'} '
-          +'-domain:{'+QadPage.Values[2]+'} '
+          '"-domain:{'+QadPage.Values[1]+'} '
           +'-qadurl:{'+QadPage.Values[0]+'} '
           +'-rootdir:{'+GlobalParamPage.Values[0]+'} '
           +'-workdir:{'+GlobalParamPage.Values[1]+'} '

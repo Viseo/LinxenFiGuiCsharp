@@ -37,8 +37,6 @@ set -
 
 setlocal enableDelayedExpansion
 
-SET USER=!-user!
-SET QADPASSWD=!-password!
 SET DOMAIN=!-domain!
 SET QADURL=!-qadurl!
 SET TIMEOUT=!-timeOut!

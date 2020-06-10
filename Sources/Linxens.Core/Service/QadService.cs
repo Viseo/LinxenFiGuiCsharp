@@ -19,8 +19,7 @@ namespace Linxens.Core.Service
         private readonly processGolfRepetitiveRequest QadRequest;
         
         private processGolfRepetitiveResponse QadResponse;
-        //private readonly Temp_err_msg[] err = QadResponse.golfRepetitiveResponse.dsExceptions;
-        public QadService(string ipAuthKey, string ipUser, string ipDomain)
+        public QadService(string ipDomain)
         {
             TtContext context1 = new TtContext();
             context1.propertyQualifier = "QAD";
@@ -51,11 +50,9 @@ namespace Linxens.Core.Service
             this._qadLogger = QadLogger.Instance;
 
             this.QadDataRows = new List<Tt_GolfDataType>();
-            //this.QadRequest = new xxf2q01Request(ipAuthKey, ipUser, ipDomain, this.QadDataRows.ToArray());
             this.QadRequest.golfRepetitive.dsSessionContext = contexts;
 
-            //TODO: Si 
-            this._qadLogger.LogInfo("QAD Service init", string.Format("QAD service init with : [User:{0}, Domain:{1}]", ipUser, ipDomain));
+            this._qadLogger.LogInfo("QAD Service init", string.Format("QAD service init with : Domain:{0}", ipDomain));
 
          
         }
